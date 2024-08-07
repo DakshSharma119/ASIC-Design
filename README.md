@@ -75,11 +75,7 @@ riscv64-unknown-elf-gcc -Ofast -mabi=lp64 -march=rv64i -o sumtilln.c
 ![Screenshot from 2024-08-08 01-28-44](https://github.com/user-attachments/assets/28c74ee2-a1fb-4732-bda3-b8a5557638bc)
 
 ## Observation
-Here we can observe that the number of instructions are reduced to 12 as compared to 15 after usinf -Ofast flab
-
-   * -O1 is moderate in it's code optimization while -Ofast is highly aggressive to achieve highest possible performance
-   * -O1 maintains strict adherence to standards while -Ofast may violate some standards to achieve better performance
-
+Here we can observe that the number of instructions are reduced to 12 as compared to 15 after usinf -Ofast flag. Ofast achieves the highest possible performance while -O1 maintains strict adherance to standards.
 ## RISC-V COMPILER OUTPUT and DEBUGGING
 Finding the output of the C program on the RISC V Compiler using the Spike command and debug the code
 
