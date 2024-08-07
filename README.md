@@ -109,10 +109,9 @@ reg 0 sp
 ```
 
 Run the Spike debugger until the main function i.e. till 100b0 instruction. Then we will manually continue debugging and inspect the a2 register before and after the execution. The instruction lui a2, 0x3 updates the a2 register from 0x0000000000000000 to 0x0000000000003000</br>
-Next, we will manually debug the next instruction i.e., addi sp, sp, -16. This instruction decrements the stack pointer (sp) by 16. This instruction updates the value in sp register, the sp register held the value 0x00000000000100b8 earlier which is then updated to 0x00000000000100bc.</br>
+Next, we will manually debug the next instruction i.e., addi sp, sp, -16. This instruction decrements the stack pointer (sp) by 16. This instruction updates the value in sp register, the sp register held the value 0x0000003ffffffb50 earlier which is then updated to 0x0000003ffffffb40.</br>
 **Note: the register names might change for different codes or machines. Here we had a2 in first instruction**
-![Screenshot from 2024-08-08 02-15-15](https://github.com/user-attachments/assets/6f73a570-e81f-4023-8d6c-566ea3e7338a)
-
+![Screenshot from 2024-08-08 02-40-47](https://github.com/user-attachments/assets/de43cf92-bdd1-4018-a3e0-caf14c935c40)
 ## Checking same using -O1 flag
 **Commands**
 ```
