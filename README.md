@@ -79,3 +79,52 @@ Here we can observe that the number of instructions are reduced to 12 as compare
 
    * -O1 is moderate in it's code optimization while -Ofast is highly aggressive to achieve highest possible performance
    * -O1 maintains strict adherence to standards while -Ofast may violate some standards to achieve better performance
+
+## RISC-V COMPILER OUTPUT and DEBUGGING
+Finding the output of the C program on the RISC V Compiler using the Spike command and debug the code
+
+## Output Matching
+In our previous lab, we compiled our C code using both gcc and a RISC-V compiler. In lab 2 we are going to have find the result of n numbers on the RISCV compiler using the SPIKE command.
+**Command**
+```
+spike pk sum1ton.o
+```
+**The compiled code using SPIKE command along with object dump file**
+![Screenshot from 2024-08-08 01-48-25](https://github.com/user-attachments/assets/ed0d9333-3204-49e2-9f63-24a280ca3c17)
+![Screenshot from 2024-08-08 01-55-52](https://github.com/user-attachments/assets/d791403b-8d01-4cb5-9ca7-8e5f3871d342)
+
+### Observation
+Same output in both the processes.
+
+## Debugging using SPIKE debugger
+
+**Commands**
+```
+spike -d pk sum1ton.o
+until pc 0 100bo
+reg 0 a2
+reg 0 a2
+reg 0 a0
+reg 0 sp
+```
+
+Run the Spike debugger until the main function i.e. till 100b0 instruction. Then we will manually continue debugging and inspect the a2 register before and after the execution. The instruction lui a2, 0x3 updates the a2 register from 0x0000000000000000 to 0x0000000000003000</br>
+Next, we will manually debug the next instruction i.e., addi sp, sp, -16. This instruction decrements the stack pointer (sp) by 16. This instruction updates the value in sp register, the sp register held the value 0x00000000000100b8 earlier which is then updated to 0x00000000000100bc.</br>
+**Note: the register names might change for different codes or machines. Here we had a2 in first instruction**
+![Screenshot from 2024-08-08 02-15-15](https://github.com/user-attachments/assets/6f73a570-e81f-4023-8d6c-566ea3e7338a)
+
+## Checking same using -O1 flag
+**Commands**
+```
+riscv64-unknown-elf-gcc -O1 -mabi=lp64 -march=rv64i -o sumtilln.o sumtilln.c
+spike pk sumtilln.o
+spike -d pk sumtilln.o
+until pc 0 10184
+reg 0 sp
+reg 0 sp
+```
+Here we run the Spike debugger until the main function i.e. till 10184 instruction. We check from the .o file starting instruction of main function and then run till that instruction then start debugging manually.</br>
+![Screenshot from 2024-08-08 02-23-38](https://github.com/user-attachments/assets/d61dd614-6b96-4488-8caf-a4d7cbdc1640)
+![Screenshot from 2024-08-08 02-24-36](https://github.com/user-attachments/assets/0bfa55f4-b3f0-4d48-9de0-41b66f1c2fd0)
+
+
