@@ -13,8 +13,8 @@ gedit sumtilln.c
 
 int main() {
     int i, n=150, sum=0;
-    for(i=1; i<=n; i++){
-      sum = sum + i;
+    for(i=1; i<=n; i--){
+      sum = sum - i;
     }
     printf("The sum from 1 to %d is %d\n", n, sum);
     return 0;
@@ -39,8 +39,8 @@ Code
 
 int main() {
     int i, n=150, sum=0;
-    for(i=1; i<=n; i++){
-      sum = sum + i;
+    for(i=1; i<=n; i--){
+      sum = sum - i;
     }
     printf("The sum from 1 to %d is %d\n", n, sum);
     return 0;
@@ -121,5 +121,179 @@ reg 0 sp
 Here we run the Spike debugger until the main function i.e. till 10184 instruction. We check from the .o file starting instruction of main function and then run till that instruction then start debugging manually.</br>
 ![Screenshot from 2024-08-08 02-23-38](https://github.com/user-attachments/assets/d61dd614-6b96-4488-8caf-a4d7cbdc1640)
 ![Screenshot from 2024-08-08 02-24-36](https://github.com/user-attachments/assets/0bfa55f4-b3f0-4d48-9de0-41b66f1c2fd0)
+
+# RISC-V Instruction Formats
+
+RISC-V architecture defines six primary instruction formats: R, I, S, B, U, and J. All of these formats are fixed at 32 bits in length, ensuring uniformity and consistency across the architecture.
+
+## Instruction Format Overview
+
+The six instruction formats can be categorized into two main groups: Core Instruction Formats and Variant Instruction Formats.
+
+### Core Instruction Formats
+
+1. **R-Type (Register)**: 
+   - **Description**: Used for arithmetic and logical operations that involve three register operands.
+   - **Operations**: Includes operations like addition, subtraction, and bitwise logical operations.
+   - **Structure**: This format uses two source registers and one destination register.
+   
+2. **I-Type (Immediate)**: 
+   - **Description**: Designed for operations that require an immediate value in conjunction with a single register operand.
+   - **Operations**: Commonly used for arithmetic with immediate values, load instructions, and shift operations.
+   - **Structure**: Combines one source register with a 12-bit immediate value.
+
+3. **S-Type (Store)**: 
+   - **Description**: Specifically for store operations, where data from a register is stored into memory.
+   - **Operations**: Uses a base address from one register and an immediate offset to store data from another register.
+   - **Structure**: The immediate value is split across two fields in the instruction.
+
+4. **U-Type (Upper Immediate)**: 
+   - **Description**: Handles operations that require a large immediate value.
+   - **Operations**: Often used for loading large constants or setting up base addresses.
+   - **Structure**: The immediate is stored in the upper 20 bits of the instruction.
+
+### Variant Instruction Formats
+
+1. **B-Type (Branch)**:
+   - **Description**: A variant of the I-Type format, used for conditional branch instructions.
+   - **Operations**: Branching is based on comparisons between register values, with the immediate value representing a relative offset.
+   - **Structure**: Combines two registers and a branch target address specified as an immediate value.
+
+2. **J-Type (Jump)**:
+   - **Description**: A variant of the U-Type format, used for jump instructions involving large offsets.
+   - **Operations**: Facilitates control flow changes, such as jumping to subroutines or functions.
+   - **Structure**: Contains a large immediate value, which is used as the jump target address.
+
+![RISC-V Instruction](https://github.com/user-attachments/assets/b2e42a91-3adb-485a-8e9d-bb27781076d6)
+
+## Decoding Instructions provided
+
+1. **ADD r0, r1, r2**
+   
+    - **R Type**
+    - Opcode = 0110011
+    - rd = r0 = 00000
+    - rs1 = r1 = 00001
+    - rs2 = r2 = 00010
+    - func3 = 000
+    - func7 = 0000000
+    - 32 Bit Instruction: 0000000_00010_00001_000_00000_0110011
+
+2. **SUB r2, r0, r1**
+
+    - **R Type**
+    - Opcode = 0110011
+    - rd = r2 = 00010
+    - rs1 = r0 = 00000
+    - rs2 = r1 = 00001
+    - func3 = 000
+    - func7 = 0100000
+    - 32 Bit Instruction: 0100000_00001_00000_000_00010_0110011
+
+3. **AND r1, r0, r2**
+   
+    - **R Type**
+    - Opcode = 0110011
+    - rd = r1 = 00001
+    - rs1 = r0 = 00000
+    - rs2 = r2 = 00010
+    - func3 = 111
+    - func7 = 0000000
+    - 32 Bit Instruction: 0000000_00010_00000_111_00001_0110011
+
+4. **OR r8, r1, r5**
+    - **R Type**
+    - Opcode = 0110011
+    - rd = r8 = 01000
+    - rs1 = r1 = 00001
+    - rs2 = r5 = 00101
+    - func3 = 110
+    - func7 = 0000000
+    - 32 Bit Instruction: 0000000_00101_00001_110_01000_0110011
+
+6. **XOR r8, r0, r4**
+    - **R Type**
+    - Opcode = 0110011
+    - rd = r8 = 01000
+    - rs1 = r0 = 00000
+    - rs2 = r4 = 00100
+    - func3 = 100
+    - func7 = 0000000
+    - 32 Bit Instruction: 0000000_00100_00000_100_01000_0110011
+
+7. **SLT r0, r1, r4**
+    - **R Type**
+    - Opcode = 0110011
+    - rd = r0 = 00000
+    - rs1 = r1 = 00001
+    - rs2 = r4 = 00100
+    - func3 = 010
+    - func7 = 0000000
+    - 32 Bit Instruction: 0000000_00100_00001_010_00000_0110011
+
+8. **ADDI r2, r2, 5**
+    - **I Type**
+    - Opcode = 0010011
+    - rd = r2 = 00010
+    - rs1 = r2 = 00010
+    - imm = 000000000101
+    - func3 = 000
+    - 32 Bit Instruction: 000000000101_00010_000_00010_0010011
+
+9. **SW r2, r0, 4**
+    - **S Type**
+    - Opcode = 0100011
+    - rs1 = r0 = 00000
+    - rs2 = r2 = 00010
+    - imm = 0000000 0100
+    - func3 = 010
+    - 32 Bit Instruction: 0000000_00010_00000_010_00100_0100011
+
+10. **SRL r6, r1, r1**
+    - **R Type**
+    - Opcode = 0110011
+    - rd = r6 = 00110
+    - rs1 = r1 = 00001
+    - rs2 = r1 = 00001
+    - func3 = 101
+    - func7 = 0000000
+    - 32 Bit Instruction: 0000000_00001_00001_101_00110_0110011
+
+11. **BNE r0, r0, 20**
+    - **B Type**
+    - Opcode = 1100011
+    - rs1 = r0 = 00000
+    - rs2 = r0 = 00000
+    - imm = 000000 001010
+    - func3 = 001
+    - 32 Bit Instruction: 0000000_00000_00000_001_01010_1100011
+
+12. **BEQ r0, r0, 15**
+    - **B Type**
+    - Opcode for BEQ = 1100011
+    - rs1 = r0 = 00000
+    - rs2 = r0 = 00000
+    - imm = 000000 001111
+    - func3 = 000
+    - 32 Bit Instruction: 0000000_00000_00000_000_01111_1100011
+
+13. **LW r3, r1, 2**
+    - **I Type**
+    - Opcode = 0000011
+    - rd = r3 = 00011
+    - rs1 = r1 = 00001
+    - imm = 000000000010
+    - func3 = 010
+    - 32 Bit Instruction: 000000000010_00001_010_00011_0000011
+
+14. **SLL r5, r1, r1**
+    - **R Type**
+    - Opcode for SLL = 0110011
+    - rd = r5 = 00101
+    - rs1 = r1 = 00001
+    - rs2 = r1 = 00001
+    - func3 = 001
+    - func7 = 0000000
+    - 32 Bit Instruction: 0000000_00001_00001_001_00101_0110011
 
 
