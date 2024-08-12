@@ -401,5 +401,5 @@ gtkwave iiitb_rv32i.vcd
 **BEQ R0, R0, 15**
 ![Screenshot from 2024-08-12 15-54-31](https://github.com/user-attachments/assets/c0154f64-e143-45f7-a46f-4a89d84bfc45)
 
-
+**Observation:** We observe a variation between bit pattern of RISCV code and hardcoded ISA.
 
