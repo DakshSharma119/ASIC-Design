@@ -327,7 +327,14 @@ The six instruction formats can be categorized into two main groups: Core Instru
 | **LW r3, r1, 2**   | I     | `000000000010_00001_010_00011_0000011`        | `0x0020A18303` |
 | **SLL r5, r1, r1** | R     | `0000000_00001_00001_001_00105_0110011`       | `0x001092B3`   |
 
+## Functional Simulation
+
+The given hardcoded instructions are:
+![Screenshot from 2024-08-12 15-24-34](https://github.com/user-attachments/assets/478803df-e763-48d2-82f2-f5eb7526db97)
+
+
 ### Differences between Standard RISC-V ISA and Hardcoded ISA
+Instead of sticking to the standard RISC-V bit patterns, the designer has implemented custom bit patterns for each instruction.
 
 | Operation           | Standard RISC-V ISA | Hardcoded ISA   |
 |---------------------|---------------------|-----------------|
@@ -343,5 +350,56 @@ The six instruction formats can be categorized into two main groups: Core Instru
 | LW R13, R1, 2       | 32'h0020a683         | 32'h00208681    |
 | SRL R16, R14, R2    | 32'h0030a123         | 32'h00271803    |
 | SLL R15, R1, R2     | 32'h002097b3         | 32'h00208783    |
+
+### Functional Simulation
+
+**Steps:**
+- Clone the Repository and change the directory
+- Compile the Verilog code
+- Execute the test bench and generate a .vcd file:
+- View the Test Bench in GTKWave
+
+**Code:**
+```
+git clone https://github.com/vinayrayapati/rv32i.git 
+cd rv32i
+iverilog -o iiitb_rv32i iiitb_rv32i.v iiitb_rv32i_tb.v
+vvp iiitb_rv32i
+gtkwave iiitb_rv32i.vcd
+```
+![Screenshot from 2024-08-12 15-38-23](https://github.com/user-attachments/assets/162efcbb-f00a-46ab-b00e-9c4582cb87f9)
+
+### GTK Waveforms
+
+**ADD R6, R2, R1**
+![Screenshot from 2024-08-12 15-43-19](https://github.com/user-attachments/assets/acc63846-a9c8-47ee-9425-743af533e148)
+
+**SUB R7, R1, R2**
+![Screenshot from 2024-08-12 15-44-47](https://github.com/user-attachments/assets/d787f4b8-ed3e-4df8-9cbe-a66716a7e24f)
+
+**AND R8, R1, R3**
+![Screenshot from 2024-08-12 15-45-40](https://github.com/user-attachments/assets/97797a01-9807-483d-b0d5-5d10aecde21e)
+
+**OR R9, R2, R5**
+![Screenshot from 2024-08-12 15-49-16](https://github.com/user-attachments/assets/adef0b80-4498-46d4-8b52-489b52f90953)
+
+**XOR R10, R1, R4**
+![Screenshot from 2024-08-12 15-49-39](https://github.com/user-attachments/assets/4f796550-c044-488d-a4b0-0a096b9d1034)
+
+**SLT R1, R2, R4**
+![Screenshot from 2024-08-12 15-50-08](https://github.com/user-attachments/assets/9ab77395-1a7c-4fa3-971f-4e0a2a3c32e5)
+
+**ADDI R12, R4, 5**
+![Screenshot from 2024-08-12 15-50-32](https://github.com/user-attachments/assets/c9eec35c-af95-4020-9b03-70fef8cb7308)
+
+**SW R3, R1, 2**
+![Screenshot from 2024-08-12 15-53-57](https://github.com/user-attachments/assets/59aef6f4-287b-47e0-a35c-e024a7a4783c)
+
+**LW R13, R1, 2**
+![Screenshot from 2024-08-12 15-54-14](https://github.com/user-attachments/assets/b3546ff0-aa30-4dc9-9139-4799b375b279)
+
+**BEQ R0, R0, 15**
+![Screenshot from 2024-08-12 15-54-31](https://github.com/user-attachments/assets/c0154f64-e143-45f7-a46f-4a89d84bfc45)
+
 
 
