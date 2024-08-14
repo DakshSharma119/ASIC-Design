@@ -403,3 +403,51 @@ gtkwave iiitb_rv32i.vcd
 
 **Observation:** We observe a variation between bit pattern of RISCV code and hardcoded ISA.
 
+## Compile C application with GCC and RISC-V GCC
+
+**Application- Find Mean of elements of an array**
+
+### Code
+```
+#include <stdio.h>
+#include <stdlib.h>
+
+double findMean(int a[], int n)
+{
+	int sum = 0;
+	for (int i = 0; i < n; i++)
+		sum += a[i];
+	return (double)sum / (double)n;
+}
+int main()
+{
+	int a[] = { 1, 3, 4, 2, 7, 5, 8, 6 };
+	int N = sizeof(a) / sizeof(a[0]);
+	printf("Mean = %f\n", findMean(a, N));
+	return 0;
+}
+
+```
+### Compilation using GCC compiler
+**Commands**</br>
+```
+gedit mean.c
+gcc mean.c
+./a.out
+```
+![Screenshot from 2024-08-14 23-14-05](https://github.com/user-attachments/assets/ba420bd4-6c9b-4f19-89be-f4db0beef73a)
+
+### Compilation using RISC-V Complie and creating Objdump filr
+**Commands**</br>
+```
+riscv64-unknown-elf-gcc -Ofast -mabi=lp64 -march=rv64i -o mean.o mean.c
+spike pk mean.o
+riscv64-unknown-elf-objdump -d mean.o | less
+```
+![Screenshot from 2024-08-14 23-23-09](https://github.com/user-attachments/assets/679a8a72-32c3-4d2f-a7d0-218afa7f590b)
+
+### Objdump file
+![Screenshot from 2024-08-14 23-23-03](https://github.com/user-attachments/assets/17fa4b17-be96-4c3e-a07b-b5f2fa301232)
+
+### Observation
+We can observe the output that is the mean of array is verified and coming the same using gcc and the riscv compiler.
