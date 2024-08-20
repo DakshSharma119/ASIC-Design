@@ -530,7 +530,7 @@ $out[31:0]  = $sel[1] ? ($sel[0] ? $quot[31:0] : $prod[31:0])
 Sequential circuits are digital circuits that use memory components to retain data, allowing them to generate outputs based on both current inputs and previous states. Unlike combinational circuits, whose outputs depend only on present inputs, sequential circuits rely on feedback loops and storage elements like flip-flops or registers to track their internal state. This state, combined with current inputs, influences the circuit's behavior, enabling tasks like counting, data storage, or sequencing events.
 
 **1. Fibonacci Series**
-The Fibonacci series is a sequence of numbers where each number is the sum of the two preceding ones, starting with 0 and 1. The series begins 0, 1, 1, 2, 3, 5, 8, and continues indefinitely. 
+The Fibonacci series is a sequence of numbers where each number is the sum of the two preceding ones, starting with 0 and 1. The series begins 0, 1, 1, 2, 3, 5, 8, and continues indefinitely. </br>
 **Code**
 ```
 $reset = *reset;
@@ -539,7 +539,7 @@ $num[31:0] = $reset ? 1 : (>>1$num + >>2$num);
 ![Screenshot from 2024-08-21 00-48-48](https://github.com/user-attachments/assets/4cf12e77-742e-44c9-8992-7f5169513b8d)
 
 **2. Free Running Counter**
-Next Value increments by 1 of the previous value
+Next Value increments by 1 of the previous value </br>
 **Code**
 ```
 $reset = *reset;
@@ -549,7 +549,7 @@ $cnt[31:0] = $reset ? 0 : (>>1$cnt + 1);
 ![Screenshot from 2024-08-21 00-51-19](https://github.com/user-attachments/assets/ebce7e85-fb5a-4010-9da9-f878b298f02c)
 
 **3. Sequential Calculator**
-Works the same way as a combinational calculator but mimics a real scenario in which the result of the previous operation is considered as one of the operands for the next operation. Upon reset the result becomes zero.
+Works the same way as a combinational calculator but mimics a real scenario in which the result of the previous operation is considered as one of the operands for the next operation. Upon reset the result becomes zero. </br>
 **Code**
 ```
 $reset = *reset;
@@ -571,7 +571,7 @@ $out[31:0] = $reset ? 32'h0 : ($choose[1] ? ($choose[0] ? $quot : $prod):($choos
 ## Pipelined Logic
 In Transaction-Level Verilog (TL-Verilog), pipelined logic is naturally expressed using pipeline constructs that represent the movement of data through various stages of a design. Each stage corresponds to a clock cycle, where data is processed and passed along to the next stage. This approach simplifies the modeling of sequential logic by automatically managing the transfer of states and values between cycles. With TL-Verilog's pipeline notation, designers can clearly describe complex, multi-stage operations, making the design and verification process more straightforward while improving clarity and maintainability.
 
-**1. To produce the Pipeline Design**
+**1. To produce the Pipeline Design** </br>
 **Code**
 ```
 $reset = *reset;
@@ -586,7 +586,7 @@ $clk_dak = *clk;
 ```
 ![Screenshot from 2024-08-21 01-00-18](https://github.com/user-attachments/assets/12fdc802-2fae-4df6-bfdd-9fb8a4df6b4c)
 
-**2. 2 Cycle Calculator**
+**2. 2 Cycle Calculator** </br>
 **Code**
 ```
 |calc
