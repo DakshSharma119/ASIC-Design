@@ -451,3 +451,169 @@ riscv64-unknown-elf-objdump -d mean.o | less
 
 ### Observation
 We can observe the output that is the mean of array is verified and coming the same using gcc and the riscv compiler.
+
+## Combinational Circuits in TL-Verilog
+**Introduction to TL-Verilog and Makerchip:** Makerchip supports the Transaction-Level Verilog (TL-Verilog) standard, which advances digital design by eliminating outdated Verilog features and introducing a more streamlined syntax. TL-Verilog enhances efficiency with powerful constructs for pipelines and transactions, simplifying the development of complex circuits.
+
+![Screenshot from 2024-08-21 00-25-04](https://github.com/user-attachments/assets/964d9ab6-70d5-45c7-91d7-851006fb6f6a)
+
+### Inverter
+
+**Code**
+```
+$out = ! $in;
+```
+![Screenshot from 2024-08-21 00-25-46](https://github.com/user-attachments/assets/402fed49-de13-468f-8eb2-133dab1f588c)
+
+### 2 Input AND
+
+**Code**
+```
+$out = $in1 && $in2;
+```
+![Screenshot from 2024-08-21 00-29-30](https://github.com/user-attachments/assets/301a2ddc-73d1-4fb9-948d-964d41dcd776)
+
+### 2 Input OR
+**Code**
+```
+$out = $in1 || $in2;
+```
+![image](https://github.com/user-attachments/assets/8b352884-8e60-4ff8-9d48-b9f61c6775aa)
+
+### 2-Input XOR Gate
+**Code**
+```
+$out = $in1 ^ $in2;
+```
+![Screenshot from 2024-08-21 00-32-22](https://github.com/user-attachments/assets/d4dfb908-ffeb-4ba9-b9b6-c8d71491529e)
+
+### Arithmetic Operation on Vectors
+**Code**
+```
+$out[4:0] = $in1[3:0] + $in2[3:0];
+```
+![Screenshot from 2024-08-21 00-35-34](https://github.com/user-attachments/assets/0985b088-6d52-4847-9970-3330040548f2)
+
+### 2:1 MUX
+**Code**
+```
+$out = $sel ? $in1 : $in0;
+```
+![Screenshot from 2024-08-21 00-38-00](https://github.com/user-attachments/assets/b150b5d6-6922-4895-bd69-89d4f91cf1ec)
+
+###  2:1 MUX Using Vectors
+**Code**
+```
+$out[7:0] = $sel ? $in1[7:0] : $in0[7:0];
+```
+![Screenshot from 2024-08-21 00-39-36](https://github.com/user-attachments/assets/904f7ada-f2ce-4308-a209-56ce9776ee22)
+
+### Combinational Calculator in TL-Verilog
+In this section, we demonstrate a basic combinational calculator implemented using TL-Verilog which performs four fundamental arithmetic operations: addition, subtraction, multiplication, and division.
+
+```
+$val1[31:0] = $rand1[3:0];
+$val2[31:0] = $rand2[3:0];
+
+$sum[31:0]  = $val1[31:0] + $val2[31:0];
+$diff[31:0] = $val1[31:0] - $val2[31:0];
+$prod[31:0] = $val1[31:0] * $val2[31:0];
+$quot[31:0] = $val1[31:0] / $val2[31:0];
+
+$out[31:0]  = $sel[1] ? ($sel[0] ? $quot[31:0] : $prod[31:0])
+                      : ($sel[0] ? $diff[31:0] : $sum[31:0]);
+```
+
+![Screenshot from 2024-08-21 00-42-50](https://github.com/user-attachments/assets/7eb784de-cdfc-42a4-bb60-17654b58b977)
+
+### Sequential Circuits in TL-Verilog
+Sequential circuits are digital circuits that use memory components to retain data, allowing them to generate outputs based on both current inputs and previous states. Unlike combinational circuits, whose outputs depend only on present inputs, sequential circuits rely on feedback loops and storage elements like flip-flops or registers to track their internal state. This state, combined with current inputs, influences the circuit's behavior, enabling tasks like counting, data storage, or sequencing events.
+
+**1. Fibonacci Series**
+The Fibonacci series is a sequence of numbers where each number is the sum of the two preceding ones, starting with 0 and 1. The series begins 0, 1, 1, 2, 3, 5, 8, and continues indefinitely. 
+**Code**
+```
+$reset = *reset;
+$num[31:0] = $reset ? 1 : (>>1$num + >>2$num);
+```
+![Screenshot from 2024-08-21 00-48-48](https://github.com/user-attachments/assets/4cf12e77-742e-44c9-8992-7f5169513b8d)
+
+**2. Free Running Counter**
+Next Value increments by 1 of the previous value
+**Code**
+```
+$reset = *reset;
+$cnt[31:0] = $reset ? 0 : (>>1$cnt + 1);
+```
+
+![Screenshot from 2024-08-21 00-51-19](https://github.com/user-attachments/assets/ebce7e85-fb5a-4010-9da9-f878b298f02c)
+
+**3. Sequential Calculator**
+Works the same way as a combinational calculator but mimics a real scenario in which the result of the previous operation is considered as one of the operands for the next operation. Upon reset the result becomes zero.
+**Code**
+```
+$reset = *reset;
+   
+$val1[31:0] = >>1$out;
+$val2[31:0] = $rand[3:0];
+   
+$sum[31:0] =  $val1[31:0] +  $val2[31:0];
+$diff[31:0] =  $val1[31:0] -  $val2[31:0];
+$prod[31:0] =  $val1[31:0] *  $val2[31:0];
+$quot[31:0] =  $val1[31:0] /  $val2[31:0];
+   
+   
+$out[31:0] = $reset ? 32'h0 : ($choose[1] ? ($choose[0] ? $quot : $prod):($choose[0] ? $diff : $sum));
+
+```
+![Screenshot from 2024-08-21 00-53-43](https://github.com/user-attachments/assets/ae282a58-02ad-4d72-8c18-a621df349850)
+
+## Pipelined Logic
+In Transaction-Level Verilog (TL-Verilog), pipelined logic is naturally expressed using pipeline constructs that represent the movement of data through various stages of a design. Each stage corresponds to a clock cycle, where data is processed and passed along to the next stage. This approach simplifies the modeling of sequential logic by automatically managing the transfer of states and values between cycles. With TL-Verilog's pipeline notation, designers can clearly describe complex, multi-stage operations, making the design and verification process more straightforward while improving clarity and maintainability.
+
+**1. To produce the Pipeline Design**
+**Code**
+```
+$reset = *reset;
+$clk_dak = *clk;
+|comp
+  @1
+    $err1 = $bad_input || $illegal_op;
+  @3
+    $err2 = $over_flow || $err1;
+  @6
+    $err3 = $div_by_zero || $err2;
+```
+![Screenshot from 2024-08-21 01-00-18](https://github.com/user-attachments/assets/12fdc802-2fae-4df6-bfdd-9fb8a4df6b4c)
+
+**2. 2 Cycle Calculator**
+**Code**
+```
+|calc
+  @1
+    $reset = *reset;
+    $clk_dak = *clk;
+   
+    $val1[31:0] = >>2$out[31:0];
+    $val2[31:0] = $rand2[3:0];
+    $sel[1:0] = $rand3[1:0];
+   
+    $sum[31:0] = $val1[31:0] + $val2[31:0];
+    $diff[31:0] = $val1[31:0] - $val2[31:0];
+    $prod[31:0] = $val1[31:0] * $val2[31:0];
+    $quot[31:0] = $val1[31:0] / $val2[31:0];
+         
+    $count = $reset ? 0 : >>1$count + 1;
+         
+  @2
+    $valid = $count;
+    $inv_valid = !$valid;
+    $calc_reset = $reset | $inv_valid;
+    $out[31:0] = $calc_reset ? 32'b0 : ($op[1] ? ($op[0] ? $quot[31:0] : $prod[31:0])
+                                             : ($op[0] ? $diff[31:0] 
+                                                        : $sum[31:0]));
+
+
+```
+![Screenshot from 2024-08-21 01-05-02](https://github.com/user-attachments/assets/51ccf5ed-6473-4a17-ae40-a5f4a55b437f)
+
