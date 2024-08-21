@@ -662,7 +662,7 @@ The diagram below demonstrates how the program counter operates.</br>
 **Code**</br>
 ```
 $reset = *reset;
-$clk_yog = *clk;
+$clk_dak = *clk;
 $reset = *reset;
 
 |cpu
@@ -671,10 +671,121 @@ $reset = *reset;
     $pc[31:0] = >>1$reset ? 32'b0 : >>1$pc + 32'd4;
 ```
 
-![Screenshot from 2024-08-21 22-58-58](https://github.com/user-attachments/assets/57156624-a79b-4cd1-a655-2d27f07b719a)
+![Screenshot from 2024-08-21 23-12-46](https://github.com/user-attachments/assets/38935849-9dee-48e6-85ec-17a893efb5f6)
 
 
-## 2. Instruction Fetch
+### 2. Instruction Fetch
 The Instruction Fetch Unit (IFU) in a CPU organizes and retrieves program instructions from memory to ensure they are executed in the correct sequence, forming part of the core's control logic. The program counter provides the address of the next instruction in the instruction memory, which must be fetched to continue processing. In this setup, the instruction memory is integrated into the program. The IFU retrieves instructions from this memory and passes them to the Decode logic for further processing. The read address for the instruction memory is determined by the program counter, which outputs a 32-bit instruction (instr[31:0]).</br>
 
 ![Screenshot from 2024-08-21 23-02-23](https://github.com/user-attachments/assets/712fc7da-01f6-49b1-ba26-6228461f6d3a)
+
+**Code**</br>
+```
+|cpu
+  @0
+    $reset = *reset;
+    $clk_dak = *clk;
+    $pc[31:0] = $reset ? '0 : >>1$pc + 32'd4;
+         
+    $imem_rd_en = !$reset ? 1 : 0;
+    $imem_rd_addr[M4_IMEM_INDEX_CNT-1:0] = $pc[M4_IMEM_INDEX_CNT+1:2];
+
+  @1
+    $instr[31:0] = $imem_rd_data[31:0];
+```
+![Screenshot from 2024-08-21 23-13-42](https://github.com/user-attachments/assets/59b279e0-1d10-4b56-b136-6f7a8c679c79)
+
+### 3. Instruction Decode
+In the decode stage, the primary goal is to extract detailed information from the instruction fetched in the previous stage. This involves determining the instruction type, identifying any immediate values, and extracting relevant register values. Each instruction is analyzed to identify its components, such as the opcode and bit fields, which are then interpreted according to the RISC-V ISA specifications. The opcode is mapped to its corresponding instruction, and the necessary fields are extracted for further processing.
+![Screenshot from 2024-08-21 23-08-25](https://github.com/user-attachments/assets/24538850-5323-44d5-8814-1c2d8e896522)
+
+**Code**</br>
+```
+ //INSTRUCTION TYPES DECODE         
+@1
+  $is_u_instr = $instr[6:2] ==? 5'b0x101;
+         
+  $is_s_instr = $instr[6:2] ==? 5'b0100x;
+         
+  $is_r_instr = $instr[6:2] ==? 5'b01011 ||
+                       $instr[6:2] ==? 5'b011x0 ||
+                       $instr[6:2] ==? 5'b10100;
+         
+  $is_j_instr = $instr[6:2] ==? 5'b11011;
+         
+  $is_i_instr = $instr[6:2] ==? 5'b0000x ||
+                       $instr[6:2] ==? 5'b001x0 ||
+                       $instr[6:2] ==? 5'b11001;
+         
+  $is_b_instr = $instr[6:2] ==? 5'b11000;
+         
+  //INSTRUCTION IMMEDIATE DECODE
+  $imm[31:0] = $is_i_instr ? {{21{$instr[31]}}, $instr[30:20]} :
+                      $is_s_instr ? {{21{$instr[31]}}, $instr[30:25], $instr[11:7]} :
+                      $is_b_instr ? {{20{$instr[31]}}, $instr[7], $instr[30:25], $instr[11:8], 1'b0} :
+                      $is_u_instr ? {$instr[31:12], 12'b0} :
+                      $is_j_instr ? {{12{$instr[31]}}, $instr[19:12], $instr[20], $instr[30:21], 1'b0} :
+                                    32'b0;
+         
+         
+         
+         
+         
+  //INSTRUCTION FIELD DECODE
+  $rs2_valid = $is_r_instr || $is_s_instr || $is_b_instr;
+  ?$rs2_valid
+    $rs2[4:0] = $instr[24:20];
+            
+  $rs1_valid = $is_r_instr || $is_i_instr || $is_s_instr || $is_b_instr;
+  ?$rs1_valid
+    $rs1[4:0] = $instr[19:15];
+         
+  $funct3_valid = $is_r_instr || $is_i_instr || $is_s_instr || $is_b_instr;
+  ?$funct3_valid
+    $funct3[2:0] = $instr[14:12];
+            
+  $funct7_valid = $is_r_instr ;
+  ?$funct7_valid
+    $funct7[6:0] = $instr[31:25];
+  $rd_valid = $is_r_instr || $is_i_instr || $is_u_instr || $is_j_instr;
+  ?$rd_valid
+    $rd[4:0] = $instr[11:7];
+         
+         
+   //INSTRUCTION DECODE
+  $opcode[6:0] = $instr[6:0];
+         
+  $dec_bits [10:0] = {$funct7[5], $funct3, $opcode};
+  $is_beq = $dec_bits ==? 11'bx_000_1100011;
+  $is_bne = $dec_bits ==? 11'bx_001_1100011;
+  $is_blt = $dec_bits ==? 11'bx_100_1100011;
+  $is_bge = $dec_bits ==? 11'bx_101_1100011;
+  $is_bltu = $dec_bits ==? 11'bx_110_1100011;
+  $is_bgeu = $dec_bits ==? 11'bx_111_1100011;
+  $is_addi = $dec_bits ==? 11'bx_000_0010011;
+  $is_add = $dec_bits ==? 11'b0_000_0110011;
+         
+  `BOGUS_USE ($is_beq $is_bne $is_blt $is_bge $is_bltu $is_bgeu $is_addi $is_add)
+```
+
+![Screenshot from 2024-08-21 23-16-40](https://github.com/user-attachments/assets/a7286a38-283d-45d9-a6a0-7ab1d4e115f5)
+
+### 4. Register File Read
+Most instructions, particularly arithmetic ones, require accessing source registers, making it necessary to read from these registers. The CPU's register file allows two simultaneous reads for the source operands (rs1 and rs2) and one write per cycle to the destination register. The rs1 and rs2 inputs are provided to the register file, which then outputs the corresponding register contents. Enable bits are set based on the validity of rs1 and rs2 determined in the previous stage. This 2-port register file configuration supports reading two registers simultaneously. The retrieved values are then stored in registers and sent to the ALU for processing.
+**Code**
+```
+//REGISTER FILE READ
+$rf_wr_en = 1'b0;
+$rf_wr_index[4:0] = 5'b0;
+$rf_rd_en1 = $rs1_valid;
+$rf_rd_index1[4:0] = $rs1;
+$rf_rd_en2 = $rs2_valid;
+$rf_rd_index2[4:0] = $rs2;
+         
+$src1_value[31:0] = $rf_rd_data1;
+
+$src2_value[31:0] = $rf_rd_data2;
+```
+![Screenshot from 2024-08-21 23-19-45](https://github.com/user-attachments/assets/1f23ad97-1253-4003-8bf3-01c5645659ba)
+
+
