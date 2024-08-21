@@ -788,4 +788,44 @@ $src2_value[31:0] = $rf_rd_data2;
 ```
 ![Screenshot from 2024-08-21 23-19-45](https://github.com/user-attachments/assets/1f23ad97-1253-4003-8bf3-01c5645659ba)
 
+### 5. Arithmetic and Logic Unit (ALU)
+The Arithmetic Logic Unit (ALU) performs computations based on the specified operation. It takes input data from two registers provided by the register file, executes the required arithmetic operation, and writes the result back to memory through the register file's write port. In this context, the code currently supports only the ADD and ADDI operations for executing the test code.
+**Code**
+```
+//ARITHMETIC AND LOGIC UNIT (ALU)
+$result[31:0] = $is_addi ? $src1_value + $imm :
+              $is_add ? $src1_value + $src2_value :
+                32'bx ;
+```
+![Screenshot from 2024-08-21 23-24-26](https://github.com/user-attachments/assets/105927ee-0822-4d3b-8518-0157f1c8459c)
+
+### 6. Register File Write
+In this step, the output of the ALU is stored in a destination register (rd) if required by the instruction. The result is written back to memory through the register_file_write port, with the register_file_write_enable signal determined by the validity of the destination register. The register_file_write_index assigns the value to the appropriate memory location. In RISC-V architecture, the x0 register is hardwired to zero, so a condition is implemented to prevent any write operations to x0, ensuring it remains constant. After the ALU processes the register values, this step writes the results back to the registers, avoiding any modifications to x0.
+**Code**
+```
+//REGISTER FILE WRITE
+$rf_wr_en = $rd_valid && $rd != 5'b0;
+$rf_wr_index[4:0] = $rd;
+$rf_wr_data[31:0] = $result;
+```
+![Screenshot from 2024-08-21 23-27-06](https://github.com/user-attachments/assets/bc6a6789-dab0-42cc-bb64-19b8397481a5)
+
+### 7. Branch Instruction
+The final step includes supporting branch instructions. In the RISC-V ISA, branches are conditional, meaning they are taken only if a specific condition is met. This requires calculating the branch target address (PC). If the branch condition is satisfied, the program counter (PC) is updated to this new branch target, altering the flow of execution as needed.
+**Code**
+```
+//BRANCH INSTRUCTIONS 1
+$taken_branch = $is_beq ? ($src1_value == $src2_value):
+$is_bne ? ($src1_value != $src2_value):
+$is_blt ? (($src1_value < $src2_value) ^ ($src1_value[31] != $src2_value[31])):
+$is_bge ? (($src1_value >= $src2_value) ^ ($src1_value[31] != $src2_value[31])):
+$is_bltu ? ($src1_value < $src2_value):
+$is_bgeu ? ($src1_value >= $src2_value):
+                                    1'b0;
+`BOGUS_USE($taken_branch)
+         
+//BRANCH INSTRUCTIONS 2
+ $br_target_pc[31:0] = $pc +$imm;
+```
+![Screenshot from 2024-08-21 23-30-40](https://github.com/user-attachments/assets/be00bebd-b4fb-4c1c-b18f-871f0224bc88)
 
