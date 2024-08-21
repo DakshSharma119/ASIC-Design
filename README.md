@@ -617,3 +617,64 @@ $clk_dak = *clk;
 ```
 ![Screenshot from 2024-08-21 01-05-02](https://github.com/user-attachments/assets/51ccf5ed-6473-4a17-ae40-a5f4a55b437f)
 
+## Validity
+When generating a waveform, each clock cycle produces results, but logical errors can still occur, which may not be immediately evident by just analyzing the waveforms, even if there are no compilation errors. Additionally, certain "don't care" conditions that don’t impact the design should be overlooked. The concept of validity is introduced to tackle these challenges. The global clock drives all operations constantly, even when they're unnecessary, leading to wasted power. In physical circuits, clocks are powered by voltage or current, consuming energy with every cycle. In complex systems, not skipping unnecessary operations can cause significant power loss. To enhance power efficiency, clock gating is used to disable the clock during cycles when operations aren't needed. Validity plays a critical role in ensuring that only necessary operations are carried out, making clock gating effective.
+**1. Total Distance Calculator**</br>
+**Code**
+```
+|calc
+  @1
+    $reset = *reset;
+    $clk_dak = *clk;
+            
+    ?$vaild      
+      @1
+        $aa_seq[31:0] = $aa[3:0] * $aa;
+        $bb_seq[31:0] = $bb[3:0] * $bb;;
+      
+      @2
+        $cc_seq[31:0] = $aa_seq + $bb_seq;;
+      
+      @3
+        $cc[31:0] = sqrt($cc_seq);
+            
+      @4
+         $total_distance[63:0] = 
+            $reset ? '0 :
+            $valid ? >>1$total_distance + $cc :
+                     >>1$total_distance;
+
+
+```
+
+![Screenshot from 2024-08-21 18-48-30](https://github.com/user-attachments/assets/1dc35326-cf78-4fea-8bff-3d7a6b4a608e)
+
+## Implementation of the RISC-V CPU Core
+Given below is the riscv block diagram</br>
+![Screenshot from 2024-08-21 18-52-03](https://github.com/user-attachments/assets/b4df8c82-b3cd-4a8d-bfb4-887bd4935a5f)
+</br>
+The design of a basic RISC-V CPU core involves several key logical blocks, which include the following components:</br>
+### 1. Program Counter
+The program counter increments its value by 4 to fetch the next instruction from memory, as illustrated in the image below. If a reset is triggered, the program counter is reset to zero, preparing it to fetch the next instruction.
+
+The diagram below demonstrates how the program counter operates.</br>
+![Screenshot from 2024-08-21 18-56-12](https://github.com/user-attachments/assets/ee18c51d-489b-4216-a2b3-408076a1fbdd)
+**Code**</br>
+```
+$reset = *reset;
+$clk_yog = *clk;
+$reset = *reset;
+
+|cpu
+  @0
+    $reset = *reset;
+    $pc[31:0] = >>1$reset ? 32'b0 : >>1$pc + 32'd4;
+```
+
+![Screenshot from 2024-08-21 22-58-58](https://github.com/user-attachments/assets/57156624-a79b-4cd1-a655-2d27f07b719a)
+
+
+## 2. Instruction Fetch
+The Instruction Fetch Unit (IFU) in a CPU organizes and retrieves program instructions from memory to ensure they are executed in the correct sequence, forming part of the core's control logic. The program counter provides the address of the next instruction in the instruction memory, which must be fetched to continue processing. In this setup, the instruction memory is integrated into the program. The IFU retrieves instructions from this memory and passes them to the Decode logic for further processing. The read address for the instruction memory is determined by the program counter, which outputs a 32-bit instruction (instr[31:0]).</br>
+
+![Screenshot from 2024-08-21 23-02-23](https://github.com/user-attachments/assets/712fc7da-01f6-49b1-ba26-6228461f6d3a)
