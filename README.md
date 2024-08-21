@@ -680,6 +680,8 @@ vaild_or_reset
                           ($op[1:0] == 2'b10) ? $prod :
                                                 $quot ;
 ```
+![image](https://github.com/user-attachments/assets/457fe2b7-541b-4aff-9199-0322079e45d2)
+
  **3. Calculator with Single Value Memory**</br>
  ![Screenshot from 2024-08-22 02-00-49](https://github.com/user-attachments/assets/a4621039-b256-48fb-9e18-3421b4b4e7a6)
 **Code**</br>
@@ -714,6 +716,9 @@ vaild_or_reset
                       ($op[2:0] == 3'b011) ? $quot :
                       ($op[2:0] == 3'b100) ? >>2$mem : >>2$out ;
 ```
+
+![image](https://github.com/user-attachments/assets/0d330423-f0bd-4c17-bd3d-730bb47777f1)
+
 ## Implementation of the RISC-V CPU Core
 Given below is the riscv block diagram</br>
 ![Screenshot from 2024-08-21 18-52-03](https://github.com/user-attachments/assets/b4df8c82-b3cd-4a8d-bfb4-887bd4935a5f)
@@ -922,7 +927,7 @@ m4_asm(LW, r17, r0, 10000)
 As the implementation is complete, a simple testbench statement can be added to ensure whether the core is working correctly or not. The "passed" and "failed" signals are used to control the simulation with the Makerchip platform. It tells the platform whether the simulation passed without any errors or failed with a list of errors that can be inferred from the log files, and hence to stop the simulation if failed.
 
 ```
-*passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
+*passed = |cpu/xreg[17]>>5$value == (1+2+3+4+5+6+7+8+9);
 ```
 ![Screenshot from 2024-08-22 01-07-48](https://github.com/user-attachments/assets/6084cdbc-0fc6-4107-8c29-18dfb87fd87e)
 
