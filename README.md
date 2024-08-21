@@ -829,3 +829,52 @@ $is_bgeu ? ($src1_value >= $src2_value):
 ```
 ![Screenshot from 2024-08-21 23-30-40](https://github.com/user-attachments/assets/be00bebd-b4fb-4c1c-b18f-871f0224bc88)
 
+# Pipelining the RISC-V CPU Core
+
+The RISC-V core designed is divided into 5 pipeline stages. Pipelining in Makerchip is extremely simple. </br>
+**Syntax**
+```
+|<pipeline_name>
+  @<pipeline_stage>
+    instructions in the current stage
+    .
+    .
+  @<pipeline_stage>
+    instructions in the current stage
+    .
+    .
+
+```
+## Load/Store Instructions
+
+Load/store and jump support are added along with the following two extra lines of code to test load and store.
+```
+m4_asm(SW, r0, r10, 10000)
+m4_asm(LW, r17, r0, 10000)
+```
+
+## Testing the core with a Testbench
+As the implementation is complete, a simple testbench statement can be added to ensure whether the core is working correctly or not. The "passed" and "failed" signals are used to control the simulation with the Makerchip platform. It tells the platform whether the simulation passed without any errors or failed with a list of errors that can be inferred from the log files, and hence to stop the simulation if failed.
+
+```
+*passed = |cpu/xreg[10]>>5$value == (1+2+3+4+5+6+7+8+9);
+```
+![Screenshot from 2024-08-22 01-07-48](https://github.com/user-attachments/assets/6084cdbc-0fc6-4107-8c29-18dfb87fd87e)
+
+Here, in the instruction memory, register r10 has been used to store the sum value. The simulation passed message can be seen under the "Log" tab. We have used ">>5" (ahead by 5) operator, because instead of stopping the simulator immediately, we wait for a couple of more cycles so as to see a little bit more on the waveform.
+
+![Screenshot from 2024-08-22 01-10-09](https://github.com/user-attachments/assets/98a7e380-e770-448e-a0ae-3dd5bb9fdb37)
+
+### The VIZ Graphic Visualizer
+The final sum output of numbers from 1 to 9, ie equal to 45 has been stored in the register r10, and simultaneously written into memory address 16 (4 because of byte addressing).
+
+![Screenshot from 2024-08-22 01-12-27](https://github.com/user-attachments/assets/19d24f6d-7aba-45e1-87c6-88f525ceeab5)
+
+### Final RISC-V CPU Core Implementation
+![Screenshot from 2024-08-22 01-15-00](https://github.com/user-attachments/assets/9f5c7910-0fda-4d01-bcac-3cd28a7ba0c7)
+
+
+![Screenshot from 2024-08-22 01-13-54](https://github.com/user-attachments/assets/c57e706c-9113-474d-a740-46140d7f0d0d)
+
+**Observation**</br>
+A 5-stage pipeline design, using clk_yog, computes the sum of numbers from 1 to 9 across various stages. The stages include Instruction Fetch, Instruction Decode, Execute, Memory Access, and Write-back. The entire process takes 58 cycles to complete.
