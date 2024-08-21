@@ -618,7 +618,7 @@ $clk_dak = *clk;
 ![Screenshot from 2024-08-21 01-05-02](https://github.com/user-attachments/assets/51ccf5ed-6473-4a17-ae40-a5f4a55b437f)
 
 ## Validity
-When generating a waveform, each clock cycle produces results, but logical errors can still occur, which may not be immediately evident by just analyzing the waveforms, even if there are no compilation errors. Additionally, certain "don't care" conditions that don’t impact the design should be overlooked. The concept of validity is introduced to tackle these challenges. The global clock drives all operations constantly, even when they're unnecessary, leading to wasted power. In physical circuits, clocks are powered by voltage or current, consuming energy with every cycle. In complex systems, not skipping unnecessary operations can cause significant power loss. To enhance power efficiency, clock gating is used to disable the clock during cycles when operations aren't needed. Validity plays a critical role in ensuring that only necessary operations are carried out, making clock gating effective.
+When generating a waveform, each clock cycle produces results, but logical errors can still occur, which may not be immediately evident by just analyzing the waveforms, even if there are no compilation errors. Additionally, certain "don't care" conditions that don’t impact the design should be overlooked. The concept of validity is introduced to tackle these challenges. The global clock drives all operations constantly, even when they're unnecessary, leading to wasted power. In physical circuits, clocks are powered by voltage or current, consuming energy with every cycle. In complex systems, not skipping unnecessary operations can cause significant power loss. To enhance power efficiency, clock gating is used to disable the clock during cycles when operations aren't needed. Validity plays a critical role in ensuring that only necessary operations are carried out, making clock gating effective.</br>
 **1. Total Distance Calculator**</br>
 **Code**
 ```
@@ -649,6 +649,71 @@ When generating a waveform, each clock cycle produces results, but logical error
 
 ![Screenshot from 2024-08-21 18-48-30](https://github.com/user-attachments/assets/1dc35326-cf78-4fea-8bff-3d7a6b4a608e)
 
+**2. Cycle Calulator with validity**</br>
+![Screenshot from 2024-08-22 01-55-13](https://github.com/user-attachments/assets/53fc0a1a-cbe8-4a8e-bd54-6a484916e3f7)
+
+**Code**</br>
+```
+|calc
+@0
+   $reset = *reset;
+    $clk_dak = *clk;
+         
+@1
+    $val1 [31:0] = >>2$out [31:0];
+    $val2 [31:0] = $rand2[3:0];
+         
+    $valid = $reset ? 1'b0 : >>1$valid + 1'b1 ;
+    $valid_or_reset = $valid || $reset;
+         
+vaild_or_reset
+   @1   
+      $sum [31:0] = $val1 + $val2;
+      $diff[31:0] = $val1 - $val2;
+      $prod[31:0] = $val1 * $val2;
+      $quot[31:0] = $val1 / $val2;
+            
+   @2   
+      $out [31:0] = $reset ? 32'b0 :
+                          ($op[1:0] == 2'b00) ? $sum :
+                          ($op[1:0] == 2'b01) ? $diff :
+                          ($op[1:0] == 2'b10) ? $prod :
+                                                $quot ;
+```
+ **3. Calculator with Single Value Memory**</br>
+ ![Screenshot from 2024-08-22 02-00-49](https://github.com/user-attachments/assets/a4621039-b256-48fb-9e18-3421b4b4e7a6)
+**Code**</br>
+```
+|calc
+  @0
+    $reset = *reset;
+    $clk_dak = *clk;
+         
+   @1
+    $val1 [31:0] = >>2$out;
+    $val2 [31:0] = $rand2[3:0];
+         
+    $valid = $reset ? 1'b0 : >>1$valid + 1'b1 ;
+    $valid_or_reset = $valid || $reset;
+         
+  ?$vaild_or_reset
+    @1   
+      $sum [31:0] = $val1 + $val2;
+      $diff[31:0] = $val1 - $val2;
+      $prod[31:0] = $val1 * $val2;
+      $quot[31:0] = $val1 / $val2;
+            
+     @2   
+        $mem[31:0] = $reset ? 32'b0 :
+                     ($op[2:0] == 3'b101) ? $val1 : >>2$mem ;
+            
+        $out [31:0] = $reset ? 32'b0 :
+                       ($op[2:0] == 3'b000) ? $sum :
+                      ($op[2:0] == 3'b001) ? $diff :
+                      ($op[2:0] == 3'b010) ? $prod :
+                      ($op[2:0] == 3'b011) ? $quot :
+                      ($op[2:0] == 3'b100) ? >>2$mem : >>2$out ;
+```
 ## Implementation of the RISC-V CPU Core
 Given below is the riscv block diagram</br>
 ![Screenshot from 2024-08-21 18-52-03](https://github.com/user-attachments/assets/b4df8c82-b3cd-4a8d-bfb4-887bd4935a5f)
@@ -865,6 +930,18 @@ Here, in the instruction memory, register r10 has been used to store the sum val
 
 ![Screenshot from 2024-08-22 01-10-09](https://github.com/user-attachments/assets/98a7e380-e770-448e-a0ae-3dd5bb9fdb37)
 
+![image](https://github.com/user-attachments/assets/9c9245c4-e31e-41fa-ac7d-d558e1de3a5a)
+
+
+### CLK Waveform
+![Screenshot from 2024-08-22 02-28-45](https://github.com/user-attachments/assets/8b610f93-900e-48e3-8e3f-135a2163d16d)
+
+### Reset Waveform
+![Screenshot from 2024-08-22 02-28-45](https://github.com/user-attachments/assets/95adc55b-0437-45a7-8e4d-c74167827a06)
+
+
+**Observation**</br>
+We can see that the value stored in reg 14 is being incremented and goes till `0x2d` i.e. 45 in decimal.</br>
 ### The VIZ Graphic Visualizer
 The final sum output of numbers from 1 to 9, ie equal to 45 has been stored in the register r10, and simultaneously written into memory address 16 (4 because of byte addressing).
 
