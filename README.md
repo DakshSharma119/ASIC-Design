@@ -984,12 +984,12 @@ cd VSDBabySoc
    sandpiper-saas -i ./src/module/*.tlv -o rvmyth.v --bestsv --noline -p verilog --outdir ./src/module/
    ```
 ![Screenshot from 2024-08-27 00-20-49](https://github.com/user-attachments/assets/4857388f-a272-4783-8e60-fd7e8a44afbb)
-5. **Make the pre_synth_sim.vcd:** We will create the pre_synth_sim.vcd by running the following command
+5. **Make the pre_synth_sim.vcd**
 ```
 make pre_synth_sim
 ```
 ![Screenshot from 2024-08-27 00-23-28](https://github.com/user-attachments/assets/7d574b14-e834-496f-be66-84ad565665aa)
-6..Now to compile and simulate RISC-V design run the following code: To compile and simulate vsdbabysoc design.
+6.**compile and simulate RISC-V design run the following code:**
 ```
 iverilog -o output/pre_synth_sim.out -DPRE_SYNTH_SIM src/module/testbench.v -I src/include -I src/module
 cd output
@@ -1006,3 +1006,5 @@ gtkwave pre_synth_sim.vcd
 ![Screenshot from 2024-08-27 00-37-13](https://github.com/user-attachments/assets/5032e5c0-8fe1-4a9b-b230-1a9f3af737d2)
 ![Screenshot from 2024-08-27 00-36-58](https://github.com/user-attachments/assets/7bb7d226-f18e-43e4-836b-2fab950ab10f)
 ![Screenshot from 2024-08-27 00-38-16](https://github.com/user-attachments/assets/cc9f611c-7640-4302-9a93-22647d10846a)
+
+**Observation:** We have verified that our code for the processor works correctly as the output waveforms we obtained from .tlv file and after conversion to low level .v file using gtkwave gives the same waveforms.
