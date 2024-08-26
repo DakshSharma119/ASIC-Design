@@ -960,3 +960,49 @@ The final sum output of numbers from 1 to 9, ie equal to 45 has been stored in t
 
 **Observation**</br>
 A 5-stage pipeline design, using clk_dak, computes the sum of numbers from 1 to 9 across various stages. The stages include Instruction Fetch, Instruction Decode, Execute, Memory Access, and Write-back. The entire process takes 58 cycles to complete.
+## Assignment 6
+## Converting TL-Verilog to Verilog and Simulating with a Testbench
+The RISC-V processor was initially designed using TL-Verilog in the Makerchip IDE. To deploy this design on an FPGA, it must first be converted to standard Verilog. This conversion was achieved using the Sandpiper-SaaS compiler.
+### Steps
+1. Run these commands to set up a virtual environment for working with simulation and synthesis tools, for tasks involving Verilog and RISC-V.
+```
+python3 -m venv env
+source ~/env/bin/activate
+pip install pyyaml click sandpiper-saas
+```
+![Screenshot from 2024-08-27 00-07-51](https://github.com/user-attachments/assets/04f0681c-a0d5-45cf-a73b-33e2954ecd77)
+
+2.**Clone the github repo:** clone VSDBabySoC design files and testbench.
+```
+git clone https://github.com/manili/VSDBabySoC.git
+cd VSDBabySoc
+```
+![Screenshot from 2024-08-27 00-14-42](https://github.com/user-attachments/assets/34f3cff2-4a9e-4e98-b39a-611a7de8b301)
+3. **Replace the rvmyth.tlv file in the VSDBabySoC Directory:** Replace the `rvmyth.tlv` file in the `VSDBabySoC/src/module` folder with our RISC-V design from `makerchip.tlv` file which we want to convert into verilog and also change the testbench according to our makerchip code.</br>
+4. **Convert .tlv to .v:** Now we have written the code in TL-Verilog .tlv which is a high-level language and we want to convert into low-level verilog that is to translate .tlv definition of rvmyth into .v definition. Inorder to get verilog code of our TLV code ie, to translate .tlv definition of RISC-V into .v definition use the following code.
+   ```
+   sandpiper-saas -i ./src/module/*.tlv -o rvmyth.v --bestsv --noline -p verilog --outdir ./src/module/
+   ```
+![Screenshot from 2024-08-27 00-20-49](https://github.com/user-attachments/assets/4857388f-a272-4783-8e60-fd7e8a44afbb)
+5. **Make the pre_synth_sim.vcd:** We will create the pre_synth_sim.vcd by running the following command
+```
+make pre_synth_sim
+```
+![Screenshot from 2024-08-27 00-23-28](https://github.com/user-attachments/assets/7d574b14-e834-496f-be66-84ad565665aa)
+6..Now to compile and simulate RISC-V design run the following code: To compile and simulate vsdbabysoc design.
+```
+iverilog -o output/pre_synth_sim.out -DPRE_SYNTH_SIM src/module/testbench.v -I src/include -I src/module
+cd output
+./pre_synth_sim.out
+gtkwave pre_synth_sim.vcd
+```
+   ![Screenshot from 2024-08-27 00-28-10](https://github.com/user-attachments/assets/eda4d0e3-1eb7-41b9-b1f6-56b8d862ae26)
+
+## Waveforms from GTKwave platform by running .v file after conversion
+![Screenshot from 2024-08-27 00-31-23](https://github.com/user-attachments/assets/5d2c3851-8064-456e-8710-7fa7878e7baf)
+
+## Makerchip IDE simulation results for comparison
+
+![Screenshot from 2024-08-27 00-37-13](https://github.com/user-attachments/assets/5032e5c0-8fe1-4a9b-b230-1a9f3af737d2)
+![Screenshot from 2024-08-27 00-36-58](https://github.com/user-attachments/assets/7bb7d226-f18e-43e4-836b-2fab950ab10f)
+![Screenshot from 2024-08-27 00-38-16](https://github.com/user-attachments/assets/cc9f611c-7640-4302-9a93-22647d10846a)
