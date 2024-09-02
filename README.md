@@ -1320,4 +1320,13 @@ iverilog -o ./pre_synth_sim.out -DPRE_SYNTH_SIM src/module/testbench.v -I src/in
 ```
 gtkwave pre_synth_sim.vcd
 ```
+![Screenshot from 2024-09-03 00-36-15](https://github.com/user-attachments/assets/27953c51-2ade-44fc-9b02-7afd5e609ee2)
 
+- VCO_IN is the input clk reference signal to the PLL module.
+- CLK is the output clk signal from the PLL module.
+- CLK_DAK is the clock used by the RISC-V CPU for the operations.
+- RV_TO_DAC is the output wire connected to the Xreg[14] register of the register file,
+- OUT is the analog signal coming out of the DAC unit.
+- reset is the reset signal for the RISC-V CPU.
+
+**Observation:**The simulation successfully demonstrates the integration of DAC and PLL peripherals with the RISC-V processor, converting digital outputs to analog signals.
