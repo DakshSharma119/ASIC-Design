@@ -1329,4 +1329,4 @@ gtkwave pre_synth_sim.vcd
 - OUT is the analog signal coming out of the DAC unit.
 - reset is the reset signal for the RISC-V CPU.
 
-**Observation:**The simulation successfully demonstrates the integration of DAC and PLL peripherals with the RISC-V processor, converting digital outputs to analog signals.
+**Observation:** The simulation successfully demonstrates the integration of DAC and PLL peripherals with the RISC-V processor, converting digital outputs to analog signals.
