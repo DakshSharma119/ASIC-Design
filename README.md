@@ -1314,7 +1314,8 @@ cd BabySoC_Simulation
 iverilog -o ./pre_synth_sim.out -DPRE_SYNTH_SIM src/module/testbench.v -I src/include -I src/module/
 ./pre_synth_sim.out
 ```
-![Screenshot from 2024-09-03 00-07-46](https://github.com/user-attachments/assets/d246c36d-ebcb-4dd9-b73d-0417fdbc780a)
+![Screenshot from 2024-09-03 00-17-12](https://github.com/user-attachments/assets/ac4c9895-c514-4cb3-9727-aca7d9e7fbf1)
+
 3. Open GTK Wave
 ```
 gtkwave pre_synth_sim.vcd
