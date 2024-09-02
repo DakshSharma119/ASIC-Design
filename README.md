@@ -1277,3 +1277,46 @@ The viz file is shown below showing the sum of 1 to 9 which is 45 stored in the 
 
 
 **Observation:** We have verified that our code for the processor works correctly as the output waveforms we obtained from .tlv file and after conversion to low level .v file using gtkwave gives the same waveforms.
+
+## Assignment 7
+## To generate waveform for DAC and PLL peripheral for Risc-V processor.
+The VSDBabySoC is a small but powerful system-on-chip (SoC) built on the RISCV architecture. It was created with the primary aim of testing three open-source IP cores together for the first time and fine-tuning the analog components. This SoC features an RVMYTH microprocessor, an 8x-PLL for reliable clock generation, and a 10-bit DAC for interfacing with other analog devices.
+![Screenshot from 2024-09-02 23-40-33](https://github.com/user-attachments/assets/6a62e8c1-c5d4-43d7-9355-ab8d55168082)
+
+**BabySoC Simulation**</br>
+Developing and simulating the complete micro-architecture of a RISC-V CPU is a complex task. For this simulation, we'll focus on incorporating two key IP blocks: PLL and DAC.
+### Phase-Locked Loop (PLL)
+
+A Phase-Locked Loop (PLL) is an electronic circuit that synchronizes the phase and frequency of an output signal with a reference signal. It typically consists of three key components:
+
+1. Phase Detector: Compares the phases of the reference and output signals, producing an error signal that indicates their difference.
+2. Loop Filter: Smooths the error signal to reduce noise and improve system stability.
+3. Voltage-Controlled Oscillator (VCO): Adjusts its output frequency based on the filtered error signal to minimize the phase difference.
+
+PLLs are widely used in applications such as clock generation, frequency synthesis, and data recovery in communication systems.
+
+
+### Digital-to-Analog Converter (DAC)
+
+
+DACs are widely used in applications such as audio playback, video display, and signal processing.
+
+1. Clone this repo: https://github.com/Subhasis-Sahu/BabySoC_Simulation.git using the following command.
+```
+git clone https://github.com/Subhasis-Sahu/BabySoC_Simulation.git
+cd BabySoC_Simulation
+```
+![Screenshot from 2024-09-03 00-03-27](https://github.com/user-attachments/assets/775bfe3a-1207-489f-b0c2-34617b942464)
+
+2. Then run the following commands, also you have to change rvmyth.v from the previous labs as shown.
+![Screenshot from 2024-09-03 00-07-46](https://github.com/user-attachments/assets/8a0d3dd8-e61d-44bf-9968-e4b9007766e9)
+```
+iverilog -o ./pre_synth_sim.out -DPRE_SYNTH_SIM src/module/testbench.v -I src/include -I src/module/
+./pre_synth_sim.out
+```
+![Screenshot from 2024-09-03 00-07-46](https://github.com/user-attachments/assets/d246c36d-ebcb-4dd9-b73d-0417fdbc780a)
+3. Open GTK Wave
+```
+gtkwave pre_synth_sim.vcd
+```
+
