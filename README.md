@@ -1,4 +1,4 @@
-# ASIC-Design
+![image](https://github.com/user-attachments/assets/9d019889-3e54-4104-895b-1267e3d74c8d)# ASIC-Design
 ## GCC Compilation Of a simple C Program
 **Step 1**
 In the Linux Environment, create a new C Program file. Here filename used is sumtilln.c made using gedit. </br>
@@ -1330,3 +1330,141 @@ gtkwave pre_synth_sim.vcd
 - reset is the reset signal for the RISC-V CPU.
 
 **Observation:** The simulation successfully demonstrates the integration of DAC and PLL peripherals with the RISC-V processor, converting digital outputs to analog signals.
+
+## Assignment 8
+
+## Introduction to Open Source Simulator: Icarus Verilog (iverilog)
+
+In digital circuit design, **Register-Transfer Level (RTL)** is an abstraction that models synchronous digital circuits. RTL focuses on how data flows between hardware registers and how logic operations are applied to these signals. It is used in **Hardware Description Languages (HDL)** like Verilog to create high-level circuit models, which are then translated into lower-level representations for hardware synthesis.
+
+## Icarus Verilog (iverilog) Simulator
+
+A **simulator** is a tool used to verify digital designs. In this workshop, we utilize the **Icarus Verilog (iverilog)** tool, a popular open-source Verilog simulation tool. Simulation in digital design involves:
+
+- **Simulation models:** These replicate the behavior of the intended device.
+- **Test models (Test Benches):** These validate the functionality of the device.
+
+## RTL Design
+
+The RTL design consists of one or more Verilog files that implement the circuit's required design specifications and functionality.
+
+## Test Bench
+
+A **Test Bench** is the configuration used to provide stimulus (test vectors) to the design under test. It allows you to verify the design's functionality by applying a variety of test scenarios.
+
+## How the Simulator Works
+
+The simulator continuously monitors the input signals for changes. When an input changes, the simulator evaluates the circuit and updates the output accordingly, mimicking how a real device would behave.
+
+---
+
+### Key Concepts
+- **RTL (Register Transfer Level):** Abstracts the flow of data between hardware registers.
+- **HDL (Hardware Description Language):** Language used to describe the behavior and structure of electronic systems.
+- **Test Bench:** Framework to provide inputs and observe outputs for validation.
+- **Simulation:** Process of verifying design functionality by mimicking device behavior.
+
+![Screenshot from 2024-10-21 20-23-43](https://github.com/user-attachments/assets/d0b9539f-b8de-4dd6-8689-8c14039dbe0a)
+![Screenshot from 2024-10-21 20-24-39](https://github.com/user-attachments/assets/a1d9d1dd-40b2-46b3-a2f3-c89ce05f34ff)
+
+## Introduction to LABS
+### Environment Setup
+```
+mkdir VLSI 
+cd VLSI
+git clone https://github.com/kunalg123/vsdflow.git
+git clone https://github.com/kunalg123/sky130RTLDesignAndSynthesisWorkshop.git
+```
+![Screenshot from 2024-10-21 20-28-23](https://github.com/user-attachments/assets/e64a8ad4-5ff5-417e-99eb-c0fee9893772)
+**sky130RTLDesignAndSynthesisWorkshop** Directory has: **My_Lib** - which contains all the necessary library files; where lib has the standard cell libraries to be used in synthesis and verilog_model with all standard cell verilog models for the standard cells present in the lib. Ther verilog_files folder contains all the experiments for lab sessions including both verilog code and test bench codes.
+
+![Screenshot from 2024-10-21 20-30-46](https://github.com/user-attachments/assets/f482aa00-0aa5-4850-b192-6e6208eb4f70)
+
+### Simulation using iverilog simulator - 2:1 multiplexer rtl design
+### VERILOG FILE OF A SIMPLE 2:1 MUX
+Compile the verilog and testbench file use the commands to generate an executable file and will dump the waveform to view it using the gtkwave.
+```
+iverilog good_mux.v tb_good_mux.v
+```
+![Screenshot from 2024-10-21 20-34-12](https://github.com/user-attachments/assets/c59996ad-d871-418b-9b28-a7119ed90813)
+To view the contents of the file run the following command
+```
+$ vim tb_good_mux.v -o good_mux.v 
+```
+![Screenshot from 2024-10-21 20-38-11](https://github.com/user-attachments/assets/a3c064d0-125b-433c-a032-841b3c76701c)
+
+### GTKWAVE Analysis
+```
+gtkwave tb_good_mux.vcd
+```
+![Screenshot from 2024-10-21 20-35-54](https://github.com/user-attachments/assets/113ab970-a793-4b35-8b84-ff58527771ae)
+## Introduction to Yosys & Logic Synthesis
+Synthesizer is a tool for converting the RTL to Netlist and here we are using the Yosys Synthesizer.
+
+### Yosys SETUP
+
+![Screenshot from 2024-10-21 20-39-26](https://github.com/user-attachments/assets/e3306101-1ba4-424d-84d2-98018c68e7b7)
+### Verifying the Synthesis
+
+![Screenshot from 2024-10-21 20-40-04](https://github.com/user-attachments/assets/9f5bb047-915a-4d00-bfa4-95239ff8e6d7)
+
+## Logic Synthesis
+
+### RTL Design
+The **RTL Design** is a behavioral representation written in HDL (Hardware Description Language) that describes the required specifications for a digital circuit.
+
+### Synthesis
+**Synthesis** is the process of translating the RTL design into a gate-level representation. The design is transformed into gates, and connections between them are established. The output of this process is a file called the **netlist**.
+
+### .lib File
+The **.lib file** is a collection of logical modules that include basic logic gates. It may contain multiple versions of the same gate (e.g., 2-input AND, 3-input AND) with different performance characteristics—such as slow, medium, and fast variants.
+
+### Faster Cells and Slower Cells
+The delay of a cell in a digital logic circuit is influenced by the load, which is determined by the circuit's capacitance.
+
+- **Faster Cell:** A faster cell has a shorter delay, achieved by quickly charging/discharging the capacitance. This is done by using wider transistors, which can source more current, reducing the cell delay. However, wider transistors consume more power and area.
+  
+- **Slower Cell:** A slower cell uses narrower transistors, which reduces power consumption and area. However, this results in higher cell delay due to slower charging/discharging of the capacitance.
+
+### Constraints
+A **Constraint** is a guidance file provided to the synthesizer to optimize the logic circuit implementation. It helps the synthesizer select the appropriate flavor of cells (fast or slow) based on the design's requirements for speed, power, and area.
+
+### Yosys flow
+
+**start yosys**</br>
+```
+yosys
+```
+![Screenshot from 2024-10-21 20-43-51](https://github.com/user-attachments/assets/ca24002b-d8a4-494c-bc53-e3be818cdd5d)
+**Read design**</br>
+```
+read_verilog good_mux.v
+```
+
+
+![Screenshot from 2024-10-21 20-45-43](https://github.com/user-attachments/assets/5e5b315c-63b5-4ab3-aefe-af27b010aad7)
+
+**Synthesise Top Module**</br>
+```
+synth -top good_mux
+```
+![Screenshot from 2024-10-21 20-47-21](https://github.com/user-attachments/assets/4ae03af8-ac08-4cc5-898b-32f102e400dd)
+
+**Map to the standard library**</br>
+```
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+```
+![Screenshot from 2024-10-21 21-08-38](https://github.com/user-attachments/assets/c7bf53e7-c1f6-49ac-b742-f234c5c1e7e5)
+To view the result as a graphich use the show command.</br>
+```
+show
+```
+
+![Screenshot from 2024-10-21 21-10-06](https://github.com/user-attachments/assets/3a9e745b-89ad-49e6-a258-54b98e0b65eb)
+</br>
+**To write the result netlist to a file use the write_veriog command.** This will output the netlist to a file in the current directory.</br>
+```
+write_verilog -noattr good_mux_netlist.v
+```
+
+![Screenshot from 2024-10-21 21-13-18](https://github.com/user-attachments/assets/77a56851-83a3-4174-9355-bb4e1c89e7d3)
