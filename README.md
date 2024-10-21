@@ -1957,6 +1957,232 @@ abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
 show
 write_verilog -noattr dff_const2_net.v
 ```
+![image](https://github.com/user-attachments/assets/2adbb863-c6e6-4ca5-be92-c2c6ff26954b)
+![image](https://github.com/user-attachments/assets/aed48f53-ec3a-4bb7-ae50-cfe4ba11aecc)
+![image](https://github.com/user-attachments/assets/2dc59194-b7ae-426b-a5bb-86e354d253d6)
+### GTKWave Output:
+```
+iverilog dff_const2.v tb_dff_const2.v
+./a.out
+gtkwave tb_dff_const2.vcd
+```
+![image](https://github.com/user-attachments/assets/e9566fd3-947c-431c-b9f5-dd1e05bfe5fe)
+### Example 3:
+
+#### Verilog code:
+```
+module dff_const3(input clk, input reset, output reg q);
+reg q1;
+
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+	begin
+		q <= 1'b1;
+		q1 <= 1'b0;
+	end
+	else
+	begin
+		q1 <= 1'b1;
+		q <= q1;
+	end
+end
+endmodule
+```
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog dff_const3.v
+synth -top dff_const3
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+write_verilog -noattr dff_const3_net.v
+```
+![image](https://github.com/user-attachments/assets/dd7b38aa-d1f2-443f-bbeb-e66800f134cc)
+![image](https://github.com/user-attachments/assets/ef8ba52b-5774-4bc3-9a2d-0cef7f9648cc)
+![image](https://github.com/user-attachments/assets/32523b54-03cf-4f78-b6f8-b7422d274773)
+![image](https://github.com/user-attachments/assets/30450e27-5d25-46d9-b5ee-000e1078e5fa)
+### GTKWave Output:
+```
+iverilog dff_const3.v tb_dff_const3.v
+./a.out
+gtkwave tb_dff_const3.vcd
+```
+![image](https://github.com/user-attachments/assets/290a0e79-a0b9-4b77-bb23-b35171542871)
+
+### Example 4:
+
+#### Verilog code:
+```
+module dff_const4(input clk, input reset, output reg q);
+reg q1;
+
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+	begin
+		q <= 1'b1;
+		q1 <= 1'b1;
+	end
+else
+	begin
+		q1 <= 1'b1;
+		q <= q1;
+	end
+end
+endmodule
+```
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog dff_const4.v
+synth -top dff_const4
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+write_verilog -noattr dff_const4_net.v
+```
+![image](https://github.com/user-attachments/assets/e20e24ee-3631-47f5-91a7-545262b94a9a)
+![image](https://github.com/user-attachments/assets/f3716545-c725-4910-9f30-aad517e86000)
+![image](https://github.com/user-attachments/assets/12c54715-a548-420c-9524-3d084325aaa3)
+
+#### GTKWave Output:
+```
+iverilog dff_const4.v tb_dff_const4.v
+./a.out
+gtkwave tb_dff_const4.vcd
+```
+![image](https://github.com/user-attachments/assets/b0544727-ff54-4078-a031-991e936705be)
+
+### Example 5:
+
+#### Verilog code:
+```
+module dff_const5(input clk, input reset, output reg q);
+reg q1;
+always @(posedge clk, posedge reset)
+	begin
+		if(reset)
+		begin
+			q <= 1'b0;
+			q1 <= 1'b0;
+		end
+	else
+		begin
+			q1 <= 1'b1;
+			q <= q1;
+		end
+	end
+endmodule
+```
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog dff_const5.v
+synth -top dff_const5
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+write_verilog -noattr dff_const5_net.v
+```
+![image](https://github.com/user-attachments/assets/26c79558-a75b-45cb-96e4-3b91010c3895)
+![image](https://github.com/user-attachments/assets/50eaca7b-ae46-4d5b-ae14-50865e002c50)
+![image](https://github.com/user-attachments/assets/8b064e4f-ea30-4550-917b-8be5d4250e62)
+#### GTKWave Output:
+```
+iverilog dff_const5.v tb_dff_const5.v
+./a.out
+gtkwave tb_dff_const5.vcd
+```
+![image](https://github.com/user-attachments/assets/da47bfe3-4b34-4726-8a11-9097afa2b8e3)
+
+### Sequential Logic Optimizations for unused outputs
+
+### Example 1:
+
+#### Verilog code:
+```
+module counter_opt (input clk , input reset , output q);
+reg [2:0] count;
+assign q = count[0];
+always @(posedge clk ,posedge reset)
+begin
+	if(reset)
+		count <= 3'b000;
+	else
+		count <= count + 1;
+end
+endmodule
+```
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog counter_opt.v
+synth -top counter_opt
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+write_verilog -noattr counter_opt_net.v
+```
+![image](https://github.com/user-attachments/assets/ac9089b9-e05d-459a-abea-4d2f1df30f20)
+![image](https://github.com/user-attachments/assets/0a774514-2af5-46db-9896-96b29b9dde6d)
+![image](https://github.com/user-attachments/assets/35dcdad0-3248-42d8-9ff9-dfa694348281)
+![image](https://github.com/user-attachments/assets/da15cb2b-e0c0-4d41-8263-3bcfdf98102d)
+
+#### GTKWave Output:
+```
+iverilog counter_opt.v tb_counter_opt.v
+./a.out
+gtkwave tb_counter_opt.vcd
+```
+![image](https://github.com/user-attachments/assets/24ce6c33-38a9-4c00-b221-826b78a4e534)
+
+### Modified counter logic:
+
+#### Verilog code:
+```
+module counter_opt (input clk , input reset , output q);
+reg [2:0] count;
+assign q = {count[2:0]==3'b100};
+always @(posedge clk ,posedge reset)
+begin
+if(reset)
+	count <= 3'b000;
+else
+	count <= count + 1;
+end
+endmodule
+```
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog counter_opt.v
+synth -top counter_opt
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+write_verilog -noattr counter_opt_net.v
+```
+![image](https://github.com/user-attachments/assets/a7fe428a-b6a1-408c-a12b-6fe850df2072)
+![image](https://github.com/user-attachments/assets/d2c3844f-1656-404a-b17c-8f2dc7d681aa)
+![image](https://github.com/user-attachments/assets/6574a773-82be-4653-91aa-e069f4be84c3)
+![image](https://github.com/user-attachments/assets/b0196b76-3e0a-4d86-9861-5f3bdc78c5f7)
+
+#### GTKWave Output:
+```
+iverilog counter_opt.v tb_counter_opt.v
+./a.out
+gtkwave tb_counter_opt.vcd
+```
+![image](https://github.com/user-attachments/assets/34bb3592-01b7-4de9-ba02-eb115db81a82)
+
+
 ## Day 4
 ## Gate Level Simulation (GLS), Blocking vs Non-Blocking, and Synthesis-Simulation Mismatch
 
