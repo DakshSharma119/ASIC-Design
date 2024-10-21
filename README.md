@@ -1692,7 +1692,271 @@ Same steps just change name.
 ![image](https://github.com/user-attachments/assets/020ad86b-5e5c-4524-8e57-d88b31731871)
 
 ## Day 3
+# Logic Circuits
 
+### Combinational vs. Sequential Circuits
+
+- **Combinational Circuits** are time-independent circuits that do not depend on previous inputs to generate an output. Their output is solely determined by the current inputs.
+  
+- **Sequential Circuits** are time-dependent circuits that rely on clock cycles and depend on both the present and past inputs to generate an output.
+
+---
+
+## Introduction to Logic Optimizations
+
+### Combinational Logic Optimization
+
+**Why do we need Combinational Logic Optimizations?**
+
+The primary goal of combinational logic optimization is to simplify the logic, resulting in a more **area-efficient** and **power-efficient** design. By minimizing the logic, we reduce the complexity, which leads to savings in both power consumption and silicon area.
+
+### Types of Combinational Optimizations
+
+#### 1. Constant Propagation
+A **direct optimization technique** where inputs that do not affect the output are ignored or optimized out. This reduces unnecessary computations, saving both area and power.
+
+Example:
+Given:  
+`Y = ((AB) + C)'`
+
+If `A = 0`, the expression simplifies to:  
+`Y = ((0) + C)' = C'`
+
+#### 2. Boolean Logic Optimization
+**Boolean Logic Optimization** simplifies complex boolean expressions using the rules of Boolean algebra, making the circuit more efficient.
+
+Example:
+```
+assign y = a?(b?c:(c?a:0)):(!c)
+```
+above is simplified as
+```
+y = a'c' + a(bc + b'ca) 
+y = a'c' + abc + ab'c 
+y = a'c' + ac(b+b') 
+y = a'c' + ac
+y = a xnor c
+```
+## Sequential Logic Optimization
+
+Sequential logic optimization focuses on improving the efficiency and performance of circuits that depend on both current and past inputs, as well as clock cycles. Optimizing sequential logic helps reduce power consumption, minimize area, and enhance circuit speed.
+
+### Types of Sequential Optimizations
+
+#### 1. Basic Technique:
+- **Sequential Constant Propagation:**
+   Similar to constant propagation in combinational logic, this technique identifies and removes inputs in sequential circuits that do not affect the output. This helps in simplifying the design and saving area and power.
+
+#### 2. Advanced Techniques:
+
+- **State Optimization:**
+   Reduces the number of states in a sequential circuit, thereby simplifying the design. This can lead to reduced logic complexity and improved circuit performance.
+
+- **Retiming:**
+   Reorganizes the placement of flip-flops within the circuit to optimize the performance by balancing delays. Retiming can help improve the overall speed of the circuit while maintaining functionality.
+
+- **Sequential Logic Cloning (Floorplan Aware Synthesis):**
+   Duplicates or clones portions of the sequential logic, particularly when considering the physical layout of the circuit. This technique improves timing by creating faster paths in the design, often used in floorplan-aware synthesis to enhance performance.
+
+### Design infers 2 input AND Gate:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog opt_check.v
+synth -top opt_check
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+opt_clean -purge
+show
+```
+### opt_clean -purge
+Removes unused or redundant logic in the design and purges any dangling wires or gates.
+![image](https://github.com/user-attachments/assets/f2087e2f-ffe9-4a15-a33e-6d2ef12ac4ce)
+
+![image](https://github.com/user-attachments/assets/27442b20-44ec-4a0e-9855-8ef2d1e375b5)
+![image](https://github.com/user-attachments/assets/08037dae-3aa0-4c8a-bf53-3345fd59c8ed)
+![image](https://github.com/user-attachments/assets/bd13850a-f106-4b05-a54a-b5d1a1b7af92)
+### Realisation
+![image](https://github.com/user-attachments/assets/aa053652-c2fe-43d6-92e7-9b3dca275284)
+### Design infers 2 input OR Gate:
+```
+1. yosys
+2. read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+3. read_verilog opt_check2.v
+4. synth -top opt_check2
+5. abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+6. opt_clean -purge
+7. show
+```
+![image](https://github.com/user-attachments/assets/da7c7313-b3ee-4602-b4be-4744795c5019)
+
+![image](https://github.com/user-attachments/assets/1f6c0f3c-3a34-4da7-bdd7-7e7719e9d2e4)
+![image](https://github.com/user-attachments/assets/e4a19de9-898c-4721-834c-e1d989c01a12)
+#### Realisation
+![image](https://github.com/user-attachments/assets/5c68e41b-bc5b-4919-84df-a63036eaec1a)
+### Design infers 3 input AND Gate:
+```
+1. yosys
+2. read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+3. read_verilog opt_check3.v
+4. synth -top opt_check3
+5. abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+6. opt_clean -purge
+7. show
+```
+![image](https://github.com/user-attachments/assets/509356f9-28cc-4ca2-8b77-98473029a9e1)
+![image](https://github.com/user-attachments/assets/ba0cffec-8093-46d8-9b8e-553d0b02c2aa)
+![image](https://github.com/user-attachments/assets/c5e6502d-1381-49bf-b0d2-c51d29d016f3)
+#### Realisation
+![image](https://github.com/user-attachments/assets/41647196-8a29-4917-8549-e8014aaefabd)
+
+### Design infers 2 input XNOR Gate (3 input Boolean Logic)
+```
+1. yosys
+2. read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+3. read_verilog opt_check4.v
+4. synth -top opt_check4
+5. abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+6. opt_clean -purge
+7. show
+```
+![image](https://github.com/user-attachments/assets/5d45a527-1a0d-4b74-b0c8-669f5a8d7d88)
+![image](https://github.com/user-attachments/assets/9f2ab617-e6fd-41e4-bd0e-929ed8e5da61)
+![image](https://github.com/user-attachments/assets/65a63bc2-8d4f-427c-9e54-5f9bdcaca7dd)
+![image](https://github.com/user-attachments/assets/8c02879d-26d1-4cdf-bd9e-33072e11c07e)
+
+### Verilog code:
+```
+module sub_module1(input a , input b , output y);
+ assign y = a & b;
+endmodule
+
+module sub_module2(input a , input b , output y);
+ assign y = a^b;
+endmodule
+
+module multiple_module_opt(input a , input b , input c , input d , output y);
+wire n1,n2,n3;
+
+sub_module1 U1 (.a(a) , .b(1'b1) , .y(n1));
+sub_module2 U2 (.a(n1), .b(1'b0) , .y(n2));
+sub_module2 U3 (.a(b), .b(d) , .y(n3));
+
+assign y = c | (b & n1); 
+
+endmodule
+```
+### On optimisation the above design becomes a AND OR gate
+
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog multiple_module_opt.v
+synth -top multiple_module_opt
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+flatten
+show
+write_verilog -noattr multiple_module_opt_net.v
+```
+![image](https://github.com/user-attachments/assets/0cbfbf20-9cfa-4759-a73a-f3a4c304ce20)
+
+### Verilog code:
+```
+module sub_module(input a , input b , output y);
+	assign y = a & b;
+endmodule
+
+module multiple_module_opt2(input a , input b , input c , input d , output y);
+		wire n1,n2,n3;
+	sub_module U1 (.a(a) , .b(1'b0) , .y(n1));
+	sub_module U2 (.a(b), .b(c) , .y(n2));
+	sub_module U3 (.a(n2), .b(d) , .y(n3));
+	sub_module U4 (.a(n3), .b(n1) , .y(y));
+endmodule
+```
+On optimisation the above design becomes Y=0
+
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog multiple_module_opt2.v
+synth -top multiple_module_opt2
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+flatten
+show
+write_verilog -noattr multiple_module_opt2_net.v
+```
+![image](https://github.com/user-attachments/assets/40f4249b-201f-4722-a651-d297037957f1)
+
+### Sequential Logic Optimizations
+
+#### Example 1:
+
+### Verilog code:
+```
+module dff_const1(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b0;
+	else
+		q <= 1'b1;
+end
+endmodule
+```
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog dff_const1.v
+synth -top dff_const1
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+write_verilog -noattr dff_const1_net.v
+```
+![image](https://github.com/user-attachments/assets/dda05f29-b19c-4ff7-bd86-4ae37baac68f)
+![image](https://github.com/user-attachments/assets/ce526c53-afc0-40cd-83b2-189dbacd178b)
+![image](https://github.com/user-attachments/assets/62128283-292f-4912-945c-8cfc1996401c)
+![image](https://github.com/user-attachments/assets/c997fe4f-d67c-4e9e-a803-158a733414bc)
+![image](https://github.com/user-attachments/assets/bf421dbf-33cf-4f58-8297-6cb2c2a588b7)
+
+### GTKWave Output:
+```
+iverilog dff_const1.v tb_dff_const1.v
+./a.out
+gtkwave tb_dff_const1.vcd
+```
+![image](https://github.com/user-attachments/assets/87160d04-5e8f-4389-80eb-e71dc1f7abc4)
+
+### Example 2:
+
+### Verilog code:
+```
+module dff_const2(input clk, input reset, output reg q);
+always @(posedge clk, posedge reset)
+begin
+	if(reset)
+		q <= 1'b1;
+	else
+		q <= 1'b1;
+end
+endmodule
+```
+Run the below code for netlist:
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog dff_const2.v
+synth -top dff_const2
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+write_verilog -noattr dff_const2_net.v
+```
 ## Day 4
 ## Gate Level Simulation (GLS), Blocking vs Non-Blocking, and Synthesis-Simulation Mismatch
 
