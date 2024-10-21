@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/9d019889-3e54-4104-895b-1267e3d74c8d)# ASIC-Design
+# ASIC-Design
 ## GCC Compilation Of a simple C Program
 **Step 1**
 In the Linux Environment, create a new C Program file. Here filename used is sumtilln.c made using gedit. </br>
@@ -1535,6 +1535,162 @@ Multiple Modules: - 2 SubModules Staistics of Multiple Modules</br>
 ![image](https://github.com/user-attachments/assets/350f0840-a8ac-400f-9370-dca28481f8d9)
 Realization of the Logic</br>
 ![image](https://github.com/user-attachments/assets/821f811f-ee3c-473d-b494-89274660800e)
-Map to the standard library</br>
+Map to the standard library</br>![Screenshot from 2024-10-21 21-42-43](https://github.com/user-attachments/assets/162262a7-5e8b-4973-bd2b-4b03ca02f73d)
+
 ![image](https://github.com/user-attachments/assets/4b440a37-6ead-4ffe-8ab7-e7ac3ba39e5e)
+
+## Flat synthesis
+Merges all hierarchical modules in the design into a single module to create a flat netlist
+```
+_To flatten the netlist
+flatten
+_Writing the netlist in a crisp manner and to view it
+write_verilog -noattr multiple_modules_flat.v
+!vim multiple_modules_flat.v
+```
+![image](https://github.com/user-attachments/assets/d449171e-75bc-4844-9022-34d9d4fb1013)
+
+**Realisation of Logic**</br>
+![image](https://github.com/user-attachments/assets/f595b1a5-5e53-4669-8fee-0eb9a8ecce8e)
+
+**Netlist**</br>
+![image](https://github.com/user-attachments/assets/4f4859ef-43d5-440c-98a2-28b6b5c1681c)
+## Module Level Synthesis
+This method is preferred when multiple instances of same module are used. The synthesis is carried out once and is replicate multiple times, and the multiple instances of the same module are stitched together in the top module. This method is helpful when making use of divide and conquer algorithm
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog multiple_modules.v
+synth -top sub_module1
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+show
+```
+![image](https://github.com/user-attachments/assets/0b988151-eab5-42af-a86b-49505aeddb7f)
+![image](https://github.com/user-attachments/assets/de6d50de-1fe1-4382-9eab-adaf1c034daa)
+Realisation of logic</br>
+![image](https://github.com/user-attachments/assets/c1d61d27-f10f-46ce-b359-90ee4e78d525)
+
+## Various Flop Coding Styles and Optimization
+
+In digital design, when an input signal changes state, the output does not change instantaneously; there is always a propagation delay. All logic gates introduce some delay, which can cause both expected and unwanted transitions in the output, referred to as **glitches**. A glitch occurs when the output momentarily differs from the expected value due to delays in signal paths. Increased delay in one path can lead to glitches when signals are combined at the output gate. Essentially, more complex combinational circuits result in more glitchy outputs that take longer to settle at the correct value.
+
+### Flip-Flop Overview
+
+A **D Flip-Flop** is a sequential element that captures the value of the input pin `d` at a clock's edge and stores it. It is a fundamental component in digital circuits. There are two types of D flip-flops:
+
+- **Rising-Edge D Flip-Flop:** Captures the input on the rising edge of the clock.
+- **Falling-Edge D Flip-Flop:** Captures the input on the falling edge of the clock.
+
+### Initialization of Flip-Flops
+
+Every flip-flop element requires an initial state; otherwise, the combinational circuit will evaluate to an undefined or garbage value. To handle this, flip-flops are equipped with control pins known as **Set** and **Reset**. These control pins can operate in two ways:
+
+- **Synchronous Set/Reset:** The output changes state only at the clock's edge.
+  ![image](https://github.com/user-attachments/assets/5df82f6b-8ce4-416b-9ce7-88576ed86963)
+
+- **Asynchronous Set/Reset:** The output can change state immediately, independent of the clock.
+  ![image](https://github.com/user-attachments/assets/4c65dc42-c985-4f18-bc56-a7817fd225ae)
+
+### FLIP FLOP SIMULATION
+Steps Followed for analysing Asynchronous behavior:
+```
+//Load the design in iVerilog by giving the verilog and testbench file names
+iverilog dff_asyncres.v tb_dff_asyncres.v 
+//List so as to ensure that it has been added to the simulator
+ls
+//To dump the VCD file
+./a.out
+//To load the VCD file in GTKwaveform
+gtkwave tb_dff_asyncres.vcd
+```
+![image](https://github.com/user-attachments/assets/2fb800c0-54f6-45a7-b1c3-e2013b9abece)
+#### GTKWave Async reset
+![image](https://github.com/user-attachments/assets/6a4e5a6d-4e60-41ac-bc4c-37885a47a532)
+#### GTKWave Async set
+![image](https://github.com/user-attachments/assets/156a1385-efcc-41a2-ac3c-bbefffa935e6)
+#### GTK WAVE OF SYNCHRONOUS RESET
+![image](https://github.com/user-attachments/assets/71d4038d-018f-4545-a856-0dfca5a07755)
+
+### FLIP FLOP SYNTHESIS
+```
+_Invoke Yosys
+yosys
+_Read library 
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+_Read Design
+read_verilog dff_asyncres.v
+_Synthesize Design - this controls which module to synthesize
+synth -top dff_asyncres
+dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+_Generate Netlist
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+_Realizing Graphical Version of Logic for single modules
+show 
+```
+![image](https://github.com/user-attachments/assets/3334cdb0-1532-4685-a9c5-1b7619751ee8)
+![image](https://github.com/user-attachments/assets/3c094c80-e59e-4a2b-94b8-9f8f46767f4c)
+
+#### Statistics of Async reset
+
+![image](https://github.com/user-attachments/assets/3654648b-44df-447b-87fb-889e2276969a)
+
+![image](https://github.com/user-attachments/assets/073df204-4978-442d-9391-287f97db56b3)
+#### Realization of Logic
+![image](https://github.com/user-attachments/assets/869c2e83-5e1c-4a5b-b83f-062ff1069062)
+
+#### Statistics of D FLipflop with Asynchronous set
+Follow the same steps as given above just the file name changes to dff_async_set.v
+![image](https://github.com/user-attachments/assets/d483538b-7522-430d-ba02-0353d54597c0)
+![image](https://github.com/user-attachments/assets/31817563-b07b-44bf-803a-6e92dc1b0cc3)
+
+#### Realisation of Logic
+![image](https://github.com/user-attachments/assets/bf6c630c-9c9b-4818-b010-c58244a0cc72)
+
+### Statistics of D FLipflop with Synchronous Reset
+![image](https://github.com/user-attachments/assets/fe927bd7-9962-437f-865e-c71da2e489df)
+
+#### Realisation
+![image](https://github.com/user-attachments/assets/74f42292-032d-4308-90e1-22f1663196b4)
+
+### Interesting Optimizations
+```
+modules used are opened using the command
+vim mult_*.v -o
+_Invoke Yosys
+yosys
+_Read library 
+read_liberty -lib ../my_lib/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+_Read Design
+read_verilog mult_2.v
+_Synthesize Design - this controls which module to synthesize
+synth -top mul2
+_Generate Netlist
+abc -liberty ../my_lib/lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+_Realizing Graphical Version of Logic for single modules
+show 
+_Writing the netlist in a crisp manner 
+write_verilog -noattr mult_2.v
+!vim mult_2.v
+```
+### mult_2.v
+![image](https://github.com/user-attachments/assets/b1fa2b23-676d-4aaa-87f8-0c2fc5937b26)
+![image](https://github.com/user-attachments/assets/dca9ef03-2d5a-46da-a11b-f02704217242)
+![image](https://github.com/user-attachments/assets/b054de77-9c63-4f98-b434-9ceee6e5b298)
+No hardware requirements - No # of memories, memory bites, processes and cells. Number of cells inferred is 0.</br>
+#### Realisation
+![image](https://github.com/user-attachments/assets/d45a95c5-4612-4881-a055-57ed2e3b6398)
+
+#### NetList File of Sub-module
+![image](https://github.com/user-attachments/assets/56d334d6-a104-4be5-a452-1224f8274e45)
+
+### mult_8.v
+Same steps just change name.
+![image](https://github.com/user-attachments/assets/9ac0eed6-4079-4894-aef5-7838cadb961b)
+#### Realisation
+![image](https://github.com/user-attachments/assets/9125d8c8-7af1-4ee0-b055-53e0848bdbc1)
+#### Netlist
+![image](https://github.com/user-attachments/assets/020ad86b-5e5c-4524-8e57-d88b31731871)
+
+
+
 
