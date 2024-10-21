@@ -1468,3 +1468,73 @@ write_verilog -noattr good_mux_netlist.v
 ```
 
 ![Screenshot from 2024-10-21 21-13-18](https://github.com/user-attachments/assets/77a56851-83a3-4174-9355-bb4e1c89e7d3)
+
+## Day 2
+## Introduction to timing labs
+Navigate to the sky130RTLDesignAndSynthesisWorkshop directory then type these below commands
+
+Command to open the libary file</br>
+```
+$ vim lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+```
+![Screenshot from 2024-10-21 21-18-53](https://github.com/user-attachments/assets/4c2ecf2e-77c2-454f-8eca-d3abc06a26a7)
+### The standard cell library
+A standard cell library is a collection of characterized logic gates that can be used to implement digital circuits.</br>
+**Contents**</br>
+For a design to work, there are three important parameters that determines how the Silicon works: Process (Variations due to Fabrications), Voltage (Changes in the behavior of the circuit) and Temperature (Sensitivity of semiconductors). Libraries are characterized to model these variations.</br>
+![image](https://github.com/user-attachments/assets/6a001718-198c-4f3c-b348-95e4f30bb0d7)
+### The .lib (Liberty) File
+
+The **.lib file** (Liberty format) provides essential data about the standard cells used in the design. This file contains information such as timing, power, noise, and area for each standard cell. Each **.lib** file is specific to a particular **corner**—meaning it covers a specific combination of process, voltage, and temperature (PVT).
+
+#### Library
+Contains general information common to all the cells in the library.
+![image](https://github.com/user-attachments/assets/62e7fb55-cae7-423f-ae5b-a55dac6a3a12)
+
+#### Cell
+Contains specific information for each **standard cell** in the library.
+![image](https://github.com/user-attachments/assets/dd58c5e6-85e9-41a5-a003-b36308942c15)
+
+#### Pin
+Describes the characteristics of each pin in a cell, including:
+- **Timing** (e.g., delay, setup, hold times)
+- **Power consumption**
+- **Capacitance**
+- **Leakage current**
+- **Functionality**
+![image](https://github.com/user-attachments/assets/6a7317e4-506f-4e98-b906-ef99129b0c74)
+##### Various Flavours of AND Cell
+![image](https://github.com/user-attachments/assets/88f27209-553b-4cb0-9c19-a20ace6e0767)
+![image](https://github.com/user-attachments/assets/9253f235-d259-4ffb-8841-c29ad9bc9e91)
+
+## Hierarchial synthesis vs Flat synthesis
+### Hierarchial synthesis
+_Opening the file used for this experiment
+```
+vim multiple_modules.v
+_Invoke Yosys
+yosys
+_Read library 
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+_Read Design
+read_verilog multiple_modules.v
+_Synthesize Design
+synth -top multiple_modules
+_Generate Netlist
+abc -liberty ../lib/sky130_fd_sc_hd__t_025C_1v80.lib
+_Realizing Graphical Version of Logic for multiple modules
+show multiple_modules
+_Writing the netlist in a crisp manner 
+write_verilog -noattr multiple_modules_hier.v
+!vim multiple_modules_hier.v
+```
+When you do synth -top 'topmodulename' in yosys, it does an hierarchical synthesis. ie the different hierarchies between modules are preserved.
+![image](https://github.com/user-attachments/assets/17b507ff-4248-4259-85b9-d743dd24fe59)
+Multiple Modules: - 2 SubModules Staistics of Multiple Modules</br>
+
+![image](https://github.com/user-attachments/assets/350f0840-a8ac-400f-9370-dca28481f8d9)
+Realization of the Logic</br>
+![image](https://github.com/user-attachments/assets/821f811f-ee3c-473d-b494-89274660800e)
+Map to the standard library</br>
+![image](https://github.com/user-attachments/assets/4b440a37-6ead-4ffe-8ab7-e7ac3ba39e5e)
+
