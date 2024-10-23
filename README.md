@@ -2346,3 +2346,64 @@ gtkwave tb_blocking_caveat.vcd
 ```
 ![image](https://github.com/user-attachments/assets/2480437d-ff70-4304-a9fe-7417e985fcf2)
 In this case there is a synthesis and simulation mismatch. While performing synthesis yosys has corrected the latch error.
+
+## To Synthesize RISC-V and compare output with functional simulations
+### Post-Synthesis
+##### Steps:
+
+Copy the src folder from your VSDBabySoC folder to your VLSI folder.
+![image](https://github.com/user-attachments/assets/38b3c4d1-1bf9-4793-9d00-29b42738c511)
+
+### There are two ways:
+
+#### Method-1
+Now run these command in the VSDBabySOC folder to get output
+```
+make post_synth_sim
+gtkwave output/post_synth_sim/post_synth_sim.vcd
+```
+
+
+![image](https://github.com/user-attachments/assets/09471ed9-d571-4d35-b4f0-2f6a24bdef25)
+![image](https://github.com/user-attachments/assets/5c257a19-751f-48f3-8164-11170a8d64ac)
+![image](https://github.com/user-attachments/assets/da0fa921-6a85-41f9-ba83-6c3e68bbbb0f)
+![image](https://github.com/user-attachments/assets/ba375132-d5fc-4614-a1bf-7c2e41f1a8e5)
+![image](https://github.com/user-attachments/assets/95ea3e68-c4e8-4249-8036-238b1fbf3d01)
+
+#### Simulations
+![image](https://github.com/user-attachments/assets/10392b61-ed60-4d3c-9910-22dbc4ac196f)
+![image](https://github.com/user-attachments/assets/dda565a1-77fb-4da4-b246-ad42db38ef16)
+![image](https://github.com/user-attachments/assets/f416c005-da87-483e-ad87-744188e7e5dc)
+![image](https://github.com/user-attachments/assets/4f8ee97c-564d-4d3a-ab38-ab24da613f51)
+### Method-2
+Using Yosys
+```
+yosys
+read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_verilog clk_gate.v
+read_verilog rvmyth.v
+synth -top rvmyth
+abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+write_verilog -noattr rvmyth_net.v
+!gedit rvmyth_net.v
+exit
+```
+![image](https://github.com/user-attachments/assets/b721ed12-fc8d-4c9a-b2c0-df33b6cd379d)
+![image](https://github.com/user-attachments/assets/663b263a-0ecb-4da0-a447-297ed432987d)
+![image](https://github.com/user-attachments/assets/34bdd84c-4778-4816-9bb7-cbc6ed948a69)
+![image](https://github.com/user-attachments/assets/9c062bd7-7b6a-4bfd-91cb-47fc0c276f40)
+#### rvmyth_net
+![image](https://github.com/user-attachments/assets/1fc8a24f-a9b0-4878-8646-c88c83919a13)
+![image](https://github.com/user-attachments/assets/b3c1a19f-09e0-474f-b145-93db7c8c781b)
+### Pre-Synthesis
+Steps:
+```
+cd ~
+cd VSDBabySoC
+iverilog -o ./pre_synth_sim.out -DPRE_SYNTH_SIM src/module/testbench.v -I src/include -I src/module/
+./pre_synth_sim.out
+gtkwave pre_synth_sim.vcd
+```
+![image](https://github.com/user-attachments/assets/f825e5ab-e67a-46ac-9ab5-c8f4073a8ee4)
+
+![image](https://github.com/user-attachments/assets/6152b78e-1e3c-46e3-ad1d-f8f863c59628)
