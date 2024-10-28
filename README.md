@@ -2410,59 +2410,36 @@ As we can see comparing both the outputs are same hence verifying our results.
 ![image](https://github.com/user-attachments/assets/3555f0ec-807b-44db-a0bf-400d0f4d653c)
 
 
-
-
-<!---
-### There are two ways:
-
-#### Method-1
-Now run these command in the VSDBabySOC folder to get output
-
-![image](https://github.com/user-attachments/assets/09471ed9-d571-4d35-b4f0-2f6a24bdef25)
-![image](https://github.com/user-attachments/assets/5c257a19-751f-48f3-8164-11170a8d64ac)
-![image](https://github.com/user-attachments/assets/da0fa921-6a85-41f9-ba83-6c3e68bbbb0f)
-
-
-#### Simulations
-
-
-### Method-2
-Goto sky130RTLDesignAndSynthesisWorkshop/src/module and run:
-Using Yosys
+## Post Synthesis Static Timing Analysis using OpenSTA
+The contents of VSDBabySoc/src/sdc/vsdbabysoc_synthesis.sdc:
 ```
-yosys
-read_liberty -lib ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib
-read_liberty -lib ../lib/avsddac.lib
-read_liberty -lib ../lib/avsdpll.lib  
-read_verilog vsdbabysoc.v
-read_verilog rvmyth_pri.v
-read_verilog clk_gate.v 
-synth -top vsdbabysoc
-dfflibmap -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
-abc -liberty ../lib/sky130_fd_sc_hd__tt_025C_1v80.lib 
-show
-write_verilog -noattr vsdbabysoc.synth.v
+set PERIOD 11.05
+
+set_units -time ns
+create_clock [get_pins {pll/CLK}] -name clk -period $PERIOD
+set_clock_uncertainty -setup  [expr $PERIOD * 0.05] [get_clocks clk]
+set_clock_transition [expr $PERIOD * 0.05] [get_clocks clk]
+set_clock_uncertainty -hold [expr $PERIOD * 0.08] [get_clocks clk]
+set_input_transition [expr $PERIOD * 0.08] [get_ports ENb_CP]
+set_input_transition [expr $PERIOD * 0.08] [get_ports ENb_VCO]
+set_input_transition [expr $PERIOD * 0.08] [get_ports REF]
+set_input_transition [expr $PERIOD * 0.08] [get_ports VCO_IN]
+set_input_transition [expr $PERIOD * 0.08] [get_ports VREFH]
 ```
-![image](https://github.com/user-attachments/assets/b721ed12-fc8d-4c9a-b2c0-df33b6cd379d)
-![image](https://github.com/user-attachments/assets/663b263a-0ecb-4da0-a447-297ed432987d)
-![image](https://github.com/user-attachments/assets/37164d2c-41da-4870-a3ea-31bdb74bfee0)
-
-#### rvmyth_net
-![image](https://github.com/user-attachments/assets/31dea558-1727-404b-89d0-475f62398cd4)
-
-![image](https://github.com/user-attachments/assets/0bad45a9-86dd-4af3-bb63-2406d7dbb092)
-
-
-### Pre-Synthesis
-Steps:
+Now, run the below commands:
 ```
-cd ~
-cd VSDBabySoC
-iverilog -o ./pre_synth_sim.out -DPRE_SYNTH_SIM src/module/testbench.v -I src/include -I src/module/
-./pre_synth_sim.out
-gtkwave pre_synth_sim.vcd
+cd VSDBabySoc/src
+sta
+read_liberty -min ./lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_liberty -min ./lib/avsdpll.lib
+read_liberty -min ./lib/avsddac.lib
+read_liberty -max ./lib/sky130_fd_sc_hd__tt_025C_1v80.lib
+read_liberty -max ./lib/avsdpll.lib
+read_liberty -max ./lib/avsddac.lib
+read_verilog ../output/synth/vsdbabysoc.synth.v
+link_design vsdbabysoc
+read_sdc ./sdc/vsdbabysoc_synthesis.sdc
+report_checks -path_delay min_max -format full_clock_expanded -digits 4
 ```
-![image](https://github.com/user-attachments/assets/f825e5ab-e67a-46ac-9ab5-c8f4073a8ee4)
-
-![image](https://github.com/user-attachments/assets/6152b78e-1e3c-46e3-ad1d-f8f863c59628)
--- >
+![image](https://github.com/user-attachments/assets/2bbf0e84-5de2-4825-863e-5915ac2c1245)
+![image](https://github.com/user-attachments/assets/2acf591c-7212-4380-8fc3-af80934bd4af)
