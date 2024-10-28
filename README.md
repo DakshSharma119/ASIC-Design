@@ -2443,8 +2443,10 @@ report_checks -path_delay min_max -format full_clock_expanded -digits 4
 ```
 ![image](https://github.com/user-attachments/assets/2bbf0e84-5de2-4825-863e-5915ac2c1245)
 ![image](https://github.com/user-attachments/assets/2acf591c-7212-4380-8fc3-af80934bd4af)
-Setup:
+</br>
+**Setup:**</br>
 ![image](https://github.com/user-attachments/assets/4233786a-eb71-422f-ac5c-da7ff3685208)
-Hold:
+</br>
+**Hold:**</br>
 ![image](https://github.com/user-attachments/assets/30e02d0e-7964-4f7f-b0ed-36b093f1b2e1)
 
