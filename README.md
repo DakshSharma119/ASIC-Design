@@ -2450,3 +2450,148 @@ report_checks -path_delay min_max -format full_clock_expanded -digits 4
 **Hold:**</br>
 ![image](https://github.com/user-attachments/assets/30e02d0e-7964-4f7f-b0ed-36b093f1b2e1)
 
+## Post Synthesis Static Timing Analysis using OpenSTA
+Snapshot of the sdc file vsdbabysoc_synthesis.sdc:
+```
+set PERIOD 11.15
+set_units -time ns
+create_clock [get_pins {pll/CLK}] -name clk -period $PERIOD
+set_clock_uncertainty -setup  [expr $PERIOD * 0.05] [get_clocks clk]
+set_clock_transition [expr $PERIOD * 0.05] [get_clocks clk]
+set_clock_uncertainty -hold [expr $PERIOD * 0.08] [get_clocks clk]
+set_input_transition [expr $PERIOD * 0.08] [get_ports ENb_CP]
+set_input_transition [expr $PERIOD * 0.08] [get_ports ENb_VCO]
+set_input_transition [expr $PERIOD * 0.08] [get_ports REF]
+set_input_transition [expr $PERIOD * 0.08] [get_ports VCO_IN]
+set_input_transition [expr $PERIOD * 0.08] [get_ports VREFH]
+```
+![image](https://github.com/user-attachments/assets/5f74c182-a4bd-4aa5-b0ef-453037b4d151)
+
+Store all the lib files in the lib folder in the VSDBabySoC/src directory.
+![image](https://github.com/user-attachments/assets/065dc439-6375-4e99-907b-ab08489556ca)
+
+Now create a sta_pvt.tcl file with the following content.
+```
+gedit sta_pvt.tcl
+```
+```
+set list_of_lib_files(1) "sky130_fd_sc_hd__ff_100C_1v65.lib"
+set list_of_lib_files(2) "sky130_fd_sc_hd__ff_100C_1v95.lib"
+set list_of_lib_files(3) "sky130_fd_sc_hd__ff_n40C_1v56.lib"
+set list_of_lib_files(4) "sky130_fd_sc_hd__ff_n40C_1v65.lib"
+set list_of_lib_files(5) "sky130_fd_sc_hd__ff_n40C_1v76.lib"
+set list_of_lib_files(6) "sky130_fd_sc_hd__ff_n40C_1v95.lib"
+set list_of_lib_files(7) "sky130_fd_sc_hd__ff_n40C_1v95_ccsnoise.lib.part1"
+set list_of_lib_files(8) "sky130_fd_sc_hd__ff_n40C_1v95_ccsnoise.lib.part2"
+set list_of_lib_files(9) "sky130_fd_sc_hd__ff_n40C_1v95_ccsnoise.lib.part3"
+set list_of_lib_files(10) "sky130_fd_sc_hd__ss_100C_1v40.lib"
+set list_of_lib_files(11) "sky130_fd_sc_hd__ss_100C_1v60.lib"
+set list_of_lib_files(12) "sky130_fd_sc_hd__ss_n40C_1v28.lib"
+set list_of_lib_files(13) "sky130_fd_sc_hd__ss_n40C_1v35.lib"
+set list_of_lib_files(14) "sky130_fd_sc_hd__ss_n40C_1v40.lib"
+set list_of_lib_files(15) "sky130_fd_sc_hd__ss_n40C_1v44.lib"
+set list_of_lib_files(16) "sky130_fd_sc_hd__ss_n40C_1v60.lib"
+set list_of_lib_files(17) "sky130_fd_sc_hd__ss_n40C_1v60_ccsnoise.lib.part1"
+set list_of_lib_files(18) "sky130_fd_sc_hd__ss_n40C_1v60_ccsnoise.lib.part2"
+set list_of_lib_files(19) "sky130_fd_sc_hd__ss_n40C_1v60_ccsnoise.lib.part3"
+set list_of_lib_files(20) "sky130_fd_sc_hd__ss_n40C_1v76.lib"
+set list_of_lib_files(21) "sky130_fd_sc_hd__tt_025C_1v80.lib"
+set list_of_lib_files(22) "sky130_fd_sc_hd__tt_100C_1v80.lib"
+
+for {set i 1} {$i <= [array size list_of_lib_files]} {incr i} {
+read_liberty ./lib/$list_of_lib_files($i)
+read_verilog ../output/synth/vsdbabysoc.synth.v
+link_design vsdbabysoc
+read_sdc ./sdc/vsdbabysoc_synthesis.sdc
+check_setup -verbose
+report_checks -path_delay min_max -fields {nets cap slew input_pins fanout} -digits {4} > ./sta_output/min_max_$list_of_lib_files($i).txt
+
+}
+
+```
+![image](https://github.com/user-attachments/assets/d651bca5-837a-4b38-ae4a-516ba92c22a3)
+
+Create a folder named sta_output in VSDBabySoC/src to store the output txt files. Now, run the following commands:
+```
+cd VSDBabySoC/src
+sta
+source sta_pvt.tcl
+```
+![image](https://github.com/user-attachments/assets/d455a02a-3a76-4b91-a84f-865c29bd47cf)
+
+These .txt file will be generated as shown
+
+![image](https://github.com/user-attachments/assets/e5f3872e-e8a4-4025-8edc-fda6983c5501)
+![image](https://github.com/user-attachments/assets/20da6796-75f6-46bb-9eee-0f66668cdaf4)
+![image](https://github.com/user-attachments/assets/f7cd64e7-3f07-4b66-a7a0-9024fae9cc32)
+
+We can use this python code to store values in excel:
+```
+import os
+import pandas as pd
+
+def extract_words_from_file(file_path):
+    """
+    Extract the first word from line 27 and the first word from the last non-empty line of a file.
+    Returns None if the file has less than 27 lines.
+    """
+    try:
+        with open(file_path, 'r') as file:
+            lines = file.readlines()
+            
+            # Ensure the file has at least 27 lines
+            if len(lines) < 27:
+                return None, None
+
+            # Get the first word from line 27
+            word_line_27 = lines[26].split()[0] if lines[26].split() else ""
+            
+            # Find the first word from the last non-empty line
+            last_non_empty_line_word = lines[len(lines)-3].split()[0] if lines[len(lines)-3].split() else ""
+            
+            # Convert to integer if the word is numeric
+            word_line_27 = int(word_line_27) if word_line_27.isdigit() else word_line_27
+            last_non_empty_line_word = int(last_non_empty_line_word) if last_non_empty_line_word.isdigit() else last_non_empty_line_word
+            
+            return word_line_27, last_non_empty_line_word
+    except Exception as e:
+        print(f"Error reading {file_path}: {e}")
+        return None, None
+
+def main(folder_path, output_excel):
+    # Create a list to hold the data
+    data = []
+
+    # Loop through all .txt files in the folder
+    for filename in os.listdir(folder_path):
+        if filename.endswith(".txt"):
+            file_path = os.path.join(folder_path, filename)
+            line_27_word, last_non_empty_line_word = extract_words_from_file(file_path)
+
+            # Append data if words were found
+            if line_27_word is not None and last_non_empty_line_word is not None:
+                data.append({
+                    "File Name": filename,
+                    "Worst HoldSlack(WNS)": line_27_word,
+                    "Worst Negative Slack(WNS)": last_non_empty_line_word
+                })
+
+    # Create a DataFrame and write it to an Excel file
+    df = pd.DataFrame(data)
+    df["Line 27 Word"] = pd.to_numeric(df["Line 27 Word"], errors="ignore")
+    df["Last Non-Empty Line Word"] = pd.to_numeric(df["Last Non-Empty Line Word"], errors="ignore")
+    
+    # Write the DataFrame to an Excel file
+    df.to_excel(output_excel, index=False)
+    print(f"Data has been saved to {output_excel}")
+
+# Set folder path and output Excel file path
+folder_path = "/home/daksh/Desktop/ASIC/VSDBabySoC/src/sta_output"
+output_excel = "output_data.xlsx"
+
+```
+
+![image](https://github.com/user-attachments/assets/3b9d7b64-b269-4498-a248-dbd2da567c88)
+![image](https://github.com/user-attachments/assets/312e4753-e6ec-452c-9a5d-87f5c37bdfc5)
+
+![image](https://github.com/user-attachments/assets/4b3fe6c5-f542-41e2-88c7-b648e01d96e0)
