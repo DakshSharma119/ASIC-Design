@@ -3087,6 +3087,123 @@ extract all
 ext2spice cthresh 0 rthresh 0
 ext2spice
 ```
+![Screenshot from 2024-11-13 02-43-44](https://github.com/user-attachments/assets/be99783e-9239-4d15-bfdb-50f0a764a87d)
+To view the spice file:
+![Screenshot from 2024-11-13 02-45-33](https://github.com/user-attachments/assets/3372bca2-3ff6-4930-a8de-a15c13682f57)
+The contents of spice file:
+
+```
+* SPICE3 file created from sky130_inv.ext - technology: sky130A
+
+.option scale=10n
+
+.subckt sky130_inv A Y VPWR VGND
+X0 Y A VGND VGND sky130_fd_pr__nfet_01v8 ad=1.37n pd=0.148m as=1.37n ps=0.148m w=35 l=23
+X1 Y A VPWR VPWR sky130_fd_pr__pfet_01v8 ad=1.44n pd=0.152m as=1.52n ps=0.156m w=37 l=23
+C0 VPWR Y 0.11fF
+C1 A Y 0.754fF
+C2 A VPWR 0.277fF
+C3 Y VGND 0.279fF
+C4 A VGND 0.45fF
+C5 VPWR VGND 0.781fF
+.ends
+
+```
+
+Now modify the `sky130_inv.spice` file to find the transient respone:
+
+```
+* SPICE3 file created from sky130_inv.ext - technology: sky130A
+
+.option scale=0.01u
+.include ./libs/pshort.lib
+.include ./libs/nshort.lib
+
+//.subckt sky130_inv A Y VPWR VGND
+M1000 Y A VGND VGND nshort_model.0 w=35 l=23
++  ad=1.44n pd=0.152m as=1.37n ps=0.148m
+M1001 Y A VPWR VPWR pshort_model.0 w=37 l=23
++  ad=1.44n pd=0.152m as=1.52n ps=0.156m
+
+VDD VPWR 0 3.3V
+VSS VGND 0 0V
+Va A VGND PULSE(0V 3.3V 0 0.1ns 0.1ns 2ns 4ns)
+
+C0 A VPWR 0.0774f
+C1 VPWR Y 0.117f
+C2 A Y 0.0754f
+C3 Y VGND 2f
+C4 A VGND 0.45f
+C5 VPWR VGND 0.781f
+//.ends
+
+.tran 1n 20n
+.control
+run
+.endc
+.end
+```
+
+Now, simulate the spice netlist
+```
+ngspice sky130_inv.spice
+```
+
+![Screenshot from 2024-11-13 02-49-55](https://github.com/user-attachments/assets/9235f4f1-ee69-4626-9916-331576c333f5)
+
+To plot the waveform:
+
+```
+plot y vs time a
+```
+
+![Screenshot from 2024-11-13 02-50-44](https://github.com/user-attachments/assets/8974cdfe-e2af-45a6-8aa2-fa71956b2db8)
 
 
+Using this transient response, we will now characterize the cell's slew rate and propagation delay:
 
+Rise Transition: Time taken for the output to rise from 20% to 80% of max value
+Fall Transition: Time taken for the output to fall from 80% to 20% of max value
+Cell Rise delay: difference in time(50% output rise) to time(50% input fall)
+Cell Fall delay: difference in time(50% output fall) to time(50% input rise)
+
+```
+Rise Transition : 2.24638 - 2.18242 =  0.06396 ns = 63.96 ps
+Fall Transition : 4.0955 - 4.05536 =  0.0419 ns = 41.9 ps
+Cell Rise Delay : 2.21144 - 2.15008 = 0.06136 ns = 61.36 ps
+Cell Fall Delay : 4.07807 - 4.05 =0.02 ns = 20 ps
+```
+
+Magic Tool options and DRC Rules:
+
+Now, go to home directory and run the below commands:
+
+```
+cd
+wget http://opencircuitdesign.com/open_pdks/archive/drc_tests.tgz
+tar xfz drc_tests.tgz
+cd drc_tests
+ls -al
+gvim .magicrc
+magic -d XR &
+```
+![Screenshot from 2024-11-13 02-52-56](https://github.com/user-attachments/assets/fcf4477b-840a-45cc-8d08-949eda44ce52)
+First load the poly file by load poly.mag on tkcon window.
+
+
+![Screenshot from 2024-11-13 02-59-35](https://github.com/user-attachments/assets/26f6656d-1cd4-4cdb-a1c3-6a91090e66a0)
+
+We can see that Poly.9 is incorrect.
+
+Add the below commands in the sky130A.tech
+![Screenshot from 2024-11-13 03-07-51](https://github.com/user-attachments/assets/e34cd3b8-69f8-43ea-bd46-d04abc031433)
+![Screenshot from 2024-11-13 03-09-53](https://github.com/user-attachments/assets/0c50292b-2242-4de0-8438-735880d28459)
+
+Run the commands in tkcon window:
+
+```
+tech load sky130A.tech
+drc check
+drc why
+```
+![Screenshot from 2024-11-13 03-13-29](https://github.com/user-attachments/assets/1178f4be-e04a-4e53-9a43-0ffea31cfbc5)
