@@ -3159,6 +3159,20 @@ plot y vs time a
 
 ![Screenshot from 2024-11-13 02-50-44](https://github.com/user-attachments/assets/8974cdfe-e2af-45a6-8aa2-fa71956b2db8)
 
+20% Screenshots
+![Screenshot from 2024-11-13 23-40-24](https://github.com/user-attachments/assets/0d17580e-b1a0-49af-bba8-75a6852d41e2)
+80% Screenshot:
+![Screenshot from 2024-11-13 23-43-17](https://github.com/user-attachments/assets/7a898b5f-57a2-4b2f-8f4b-bc13b45416f2)
+
+ R i s e   t r a n s i t i o n   t i m e = 2.24638 − 2.18242 = 0.06396   n s = 63.96   p s 
+
+Fall Time:</br>
+20%:
+
+![Screenshot from 2024-11-13 23-45-21](https://github.com/user-attachments/assets/f3f90594-76b7-44ac-8e27-bb313277efc5)
+
+80%:
+![Screenshot from 2024-11-13 23-46-12](https://github.com/user-attachments/assets/272356c2-ce69-49a1-ba08-ec24279e66c6)
 
 Using this transient response, we will now characterize the cell's slew rate and propagation delay:
 
@@ -3207,3 +3221,119 @@ drc check
 drc why
 ```
 ![Screenshot from 2024-11-13 03-13-29](https://github.com/user-attachments/assets/1178f4be-e04a-4e53-9a43-0ffea31cfbc5)
+
+#### Day-4: Pre-layout timing analysis and importance of good clock tree
+
+Commands to extract `tracks.info` file:
+
+```
+cd Desktop/work/tools/openlane_working_dir/openlane/vsdstdcelldesign
+cd ../../pdks/sky130A/libs.tech/openlane/sky130_fd_sc_hd/
+less tracks.info
+```
+![Screenshot from 2024-11-13 22-35-39](https://github.com/user-attachments/assets/e5394793-cabe-4563-bebb-c2f10fc53ded)
+
+Commands for tkcon window to set grid as tracks of locali layer
+
+```
+grid 0.46um 0.34um 0.23um 0.17um
+```
+
+![Screenshot from 2024-11-13 22-42-56](https://github.com/user-attachments/assets/79a33c96-f58c-4310-8144-a4fd8331167a)
+The grids show where the routing for the local-interconnet layer can only happen, the distance of the grid lines are the required pitch of the wire. Below, we can see that the guidelines are satisfied:
+
+![Screenshot from 2024-11-13 22-44-05](https://github.com/user-attachments/assets/49abe3f9-ef63-489e-961d-6946060ce606)
+
+Now, save it by giving a custon mae
+
+```
+save sky130_dakinv.mag
+```
+![Screenshot from 2024-11-13 23-02-46](https://github.com/user-attachments/assets/cd62bc6c-c3c5-4b67-9635-a5ed786206f4)
+
+Now, open it by using the following commands:
+
+```
+magic -T sky130A.tech sky130_akainv.mag &
+```
+![Screenshot from 2024-11-13 23-06-11](https://github.com/user-attachments/assets/1cf07ed8-700f-4d0b-94c1-d2769304092d)
+
+
+
+Now, type the following command in tkcon window:
+
+```
+lef write
+```
+![Screenshot from 2024-11-13 23-07-01](https://github.com/user-attachments/assets/dbb7040e-c5a1-4782-b423-b655f42b7ff7)
+![Screenshot from 2024-11-13 23-07-45](https://github.com/user-attachments/assets/39351555-7701-4a2b-9521-a3802b6f10d9)
+
+
+Modify config.tcl in /home/vsduser/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a :
+
+
+```
+# Design
+set ::env(DESIGN_NAME) "picorv32a"
+
+set ::env(VERILOG_FILES) "./designs/picorv32a/src/picorv32a.v"
+set ::env(SDC_FILES) "./designs/picorv32a/src/picorv32a.sdc"
+
+
+set ::env(CLOCK_PERIOD) "5.000"
+set ::env(CLOCK_PORT) "clk"
+
+set ::env(CLOCK_NET) $::env(CLOCK_PORT) 
+
+
+set ::env(LIB_SYNTH) "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__typical.lib "
+set ::env(LIB_FASTEST) "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__fast.lib"
+set ::env(LIB_SLOWEST) "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__slow.lib "
+set ::env(LIB_TYPICAL) "$::env(OPENLANE_ROOT)/designs/picorv32a/src/sky130_fd_sc_hd__typical.lib"
+
+set ::env(EXTRA_LEFS) [glob $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)/src/*.lef]   ## this is the new line added to the existing config.tcl file
+
+set filename $::env(OPENLANE_ROOT)/designs/$::env(DESIGN_NAME)/$::env(PDK)_$::env(STD_CELL_LIBRARY)_config.tcl
+if { [file exists $filename] == 1 } {
+  source $filename
+}
+```
+
+![Screenshot from 2024-11-13 22-53-56](https://github.com/user-attachments/assets/8310e73e-4cae-415f-a03d-fdad70677627)
+
+
+Commands to copy necessary files to 'picorv32a' design 'src' directory
+```
+# Copy lef file
+cp sky130_vsdinv.lef ~/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/src/
+
+# List and check whether it's copied
+ls ~/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/src/
+
+# Copy lib files
+cp libs/sky130_fd_sc_hd__* ~/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/src/
+
+# List and check whether it's copied
+ls ~/Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/src/
+```
+Screenshot of commands run
+![Screenshot from 2024-11-13 23-09-54](https://github.com/user-attachments/assets/d6e1faa1-d8ca-492a-a818-4a97b168ec1b)
+
+
+Now, run openlane flow synthesis:
+
+```
+cd Desktop/work/tools/openlane_working_dir/openlane
+docker
+```
+
+```
+./flow.tcl -interactive
+package require openlane 0.9
+prep -design picorv32a
+set lefs [glob $::env(DESIGN_DIR)/src/*.lef]
+add_lefs -src $lefs
+run_synthesis
+```
+
+
