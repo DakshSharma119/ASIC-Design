@@ -3336,4 +3336,76 @@ add_lefs -src $lefs
 run_synthesis
 ```
 
+![Screenshot from 2024-11-14 00-36-35](https://github.com/user-attachments/assets/1c0eb56e-f95f-463e-837a-54629c74f353)
+![Screenshot from 2024-11-14 00-38-15](https://github.com/user-attachments/assets/91316e7e-8aa8-40a7-8475-6332125f4dfb)
+![Screenshot from 2024-11-14 00-39-28](https://github.com/user-attachments/assets/c0e16c99-e7be-47c7-8d38-3ec036001921)
+![Screenshot from 2024-11-14 00-58-04](https://github.com/user-attachments/assets/b31aa65b-95ad-4b3e-b877-6ac385225470)
+![Screenshot from 2024-11-14 00-58-18](https://github.com/user-attachments/assets/7594e8b8-dfb4-4dff-8cdc-6f3df308876a)
 
+
+**Delay Tables**
+
+Delay plays a crucial role in cell timing, impacted by input transition and output load. Cells of the same type can have different delays depending on wire length due to resistance and capacitance variations. To manage this, "delay tables" are created, using 2D arrays with input slew and load capacitance for each buffer size as timing models. Algorithms compute buffer delays from these tables, interpolating where exact data isn’t available to estimate delays accurately, preserving signal integrity across varying load conditions.
+
+![image](https://github.com/user-attachments/assets/095a59e1-158c-4870-88e3-b73cb3a3692c)
+
+Fixing slack:
+
+```
+./flow.tcl -interactive
+package require openlane 0.9
+prep -design picorv32a -tag 24-03_10-03 -overwrite
+set lefs [glob $::env(DESIGN_DIR)/src/*.lef]
+add_lefs -src $lefs
+echo $::env(SYNTH_STRATEGY)
+set ::env(SYNTH_STRATEGY) "DELAY 3"
+echo $::env(SYNTH_BUFFERING
+echo $::env(SYNTH_SIZING)
+set ::env(SYNTH_SIZING) 1
+echo $::env(SYNTH_DRIVING_CELL)
+run_synthesis
+```
+![Screenshot from 2024-11-14 01-00-45](https://github.com/user-attachments/assets/c14ceb4d-e9d0-45d8-9c92-f113a5e6fa83)
+![Screenshot from 2024-11-14 01-01-37](https://github.com/user-attachments/assets/fdedfb0d-daea-4c07-8752-b8d628d798af)
+Now, run floorplan
+
+```
+run_floorplan
+```
+![Screenshot from 2024-11-14 01-02-14](https://github.com/user-attachments/assets/fc6c2a46-8fa5-4bfa-a916-6661a0775a92)
+
+Since we are facing unexpected un-explainable error while using run_floorplan command, we can instead use the following set of commands available based on information from `Desktop/work/tools/openlane_working_dir/openlane/scripts/tcl_commands/floorplan.tcl` and also based on Floorplan Commands section in `Desktop/work/tools/openlane_working_dir/openlane/docs/source/OpenLANE_commands.md`
+
+```
+init_floorplan
+place_io
+tap_decap_or
+```
+![Screenshot from 2024-11-14 01-05-13](https://github.com/user-attachments/assets/9a2b1184-a7ca-4792-ab6b-89bc5103ad89)
+![Screenshot from 2024-11-14 01-05-19](https://github.com/user-attachments/assets/1cd88896-d1a4-411d-bd43-8fe7dfa8511d)
+
+Now, do placement
+
+```
+run_placement
+```
+![Screenshot from 2024-11-14 01-06-49](https://github.com/user-attachments/assets/f005f318-8243-4c71-bcca-9a6e6606227f)
+Now, open a new terminal and run the below commands to load placement def in magic
+
+```
+cd Desktop/work/tools/openlane_working_dir/openlane/designs/picorv32a/runs/24-03_10-03/results/placement/
+magic -T /home/vsduser/Desktop/work/tools/openlane_working_dir/pdks/sky130A/libs.tech/magic/sky130A.tech lef read ../../tmp/merged.lef def read picorv32a.placement.def &
+
+```
+![Screenshot from 2024-11-14 01-07-43](https://github.com/user-attachments/assets/2fa8eec7-0171-4ec2-ac7f-6fa06f1f5d39)
+
+Custom inverter inserted in placement def
+
+
+
+Command for tkcon window to view internal layers of cells
+```
+# Command to view internal connectivity layers
+expand
+```
+Abutment of power pins with other cell from library clearly visible
