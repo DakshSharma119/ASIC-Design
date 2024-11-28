@@ -4727,8 +4727,28 @@ In summary, Clock Tree Synthesis is a fundamental aspect of VLSI design that dir
 ```
 make DESIGN_CONFIG=./designs/sky130hd/vsdbabysoc/config.mk cts
 ```
+![image](https://github.com/user-attachments/assets/bdee5d6a-5529-4c14-9c99-02317d5cbb69)
 
+![image](https://github.com/user-attachments/assets/635b96f5-bbd6-4842-a40b-3c5f1c706344)
 
+![image](https://github.com/user-attachments/assets/0e439c45-de3a-4cd5-b4f1-0f6095bb861d)
+![image](https://github.com/user-attachments/assets/75db98f5-30b8-47c6-a187-5ab3369a8919)
+
+## In the above screenshots we can see the clock name as clk_dak
+
+CTS final report:
+![image](https://github.com/user-attachments/assets/eae264c1-4a37-497a-bc1d-6f3745930282)
+![image](https://github.com/user-attachments/assets/02a9bb68-b7ff-4aa3-a99c-a29b4bc8f304)
+
+### Route:
+
+```
+make DESIGN_CONFIG=./designs/sky130hd/vsdbabysoc/config.mk route
+```
+![image](https://github.com/user-attachments/assets/a6191f82-51b8-4bbc-bc50-c6330969448c)
+![image](https://github.com/user-attachments/assets/de5aa1fe-167b-48f7-8437-6215495772b4)
+![image](https://github.com/user-attachments/assets/652522e2-f708-4452-9fa6-5b6648bf027f)
+![image](https://github.com/user-attachments/assets/85e37f7c-72ac-492b-ac08-6abd58b37466)
 
 
 
